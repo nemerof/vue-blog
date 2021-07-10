@@ -53,6 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new CustomAccessDeniedHandler();
     }
 
+
+//    todo Used for oauth2 authorization
 //    @Bean
 //    public PrincipalExtractor principalExtractor(UserRepository userRepository) {
 //        return map -> {

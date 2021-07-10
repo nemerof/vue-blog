@@ -31,7 +31,7 @@ public class MessageController {
         return messageRepository.findById(id).orElse(null);
     }
 
-    @CrossOrigin
+    @CrossOrigin // не уверен что это нужно)
     @PostMapping
     public Message addMessage(@RequestBody Message message) {
         message.setId(UUID.randomUUID().toString());

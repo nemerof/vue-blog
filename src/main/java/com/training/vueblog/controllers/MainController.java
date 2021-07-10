@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+// todo class for work with user data on frontend
 @RestController
 @RequestMapping("/api/user")
 public class MainController {
