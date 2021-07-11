@@ -3,6 +3,7 @@ package com.training.vueblog.objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
 import javax.persistence.Entity;
@@ -16,12 +17,37 @@ import java.util.Map;
 @Table(name = "usr")
 @Getter
 @Setter
-public class User {
+// todo Implement all UserDetails interface methods
+public class User implements UserDetails {
     @Id
     private String id;
-    private String name;
-    private String userPicture;
-    private String email;
-    private String locale;
+    private String username;
+    private String password;
+    private LocalDateTime creationDate;
     private LocalDateTime lastVisit;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
