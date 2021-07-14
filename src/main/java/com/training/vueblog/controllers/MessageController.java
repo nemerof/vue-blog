@@ -31,8 +31,7 @@ public class MessageController {
         return messageRepository.findById(id).orElse(null);
     }
 
-    @CrossOrigin // не уверен что это нужно)
-    @PostMapping
+    @PostMapping("/add")
     public Message addMessage(@RequestBody Message message) {
         message.setId(UUID.randomUUID().toString());
         message.setCreationDate(LocalDateTime.now());
