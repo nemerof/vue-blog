@@ -1,10 +1,17 @@
 package com.training.vueblog.controllers;
 
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Message;
 import com.training.vueblog.repositories.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -15,9 +22,22 @@ public class MessageController {
 
     private final MessageRepository messageRepository;
 
+    private final Storage storage;
+
     @Autowired
-    public MessageController(MessageRepository messageRepository) {
+    public MessageController(MessageRepository messageRepository, Storage storage) {
         this.messageRepository = messageRepository;
+        this.storage = storage;
+    }
+
+    //example of adding file to google storage
+    @GetMapping("/add")
+    public void method() throws IOException {
+        BlobId blobId = BlobId.of("vueblog-files-bucket", "result.txt");
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+        File file = new File("D:\\copy\\result.txt");
+        byte[] data = Files.readAllBytes(Paths.get(file.toURI()));
+        storage.create(blobInfo, data);
     }
 
     @GetMapping
