@@ -4,9 +4,11 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Message;
+import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.MessageRepository;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -55,10 +57,11 @@ public class MessageController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*") // не уверен что это нужно)
     @PostMapping("/add")
-    public Message addMessage(@RequestPart("text") Message message, @RequestParam("file") MultipartFile file2)
+    public Message addMessage(@AuthenticationPrincipal User user, @RequestPart("text") Message message, @RequestParam("file") MultipartFile file2)
       throws IOException {
       message.setId(UUID.randomUUID().toString());
       message.setCreationDate(LocalDateTime.now());
+      message.setUser(user);
 
       messageRepository.save(message);
 

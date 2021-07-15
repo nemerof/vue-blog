@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,6 +19,10 @@ public class Message {
 
     private String body;
     private LocalDateTime creationDate;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ElementCollection
     private List<String> tags;
