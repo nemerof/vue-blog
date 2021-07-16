@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -28,19 +29,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .antMatcher("/**")
-                .authorizeRequests()
-                .antMatchers("/", "/js/**", "/css/**", "/api/message", "/api/user", "/api/login").permitAll()
-                .anyRequest().authenticated()
-                // spring in-built authorization is not necessary
-                //.and()
-                //    .formLogin().loginProcessingUrl("/api/login")
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
-                    .logout().logoutUrl("/api/logout").permitAll()
+                    .antMatcher("/**")
+                    .authorizeRequests()
+                    .antMatchers("/", "/js/**", "/css/**", "/api/message", "/api/user", "/api/login").permitAll()
+                    .anyRequest().authenticated()
                 .and()
-                    .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-                .and()
-                    .csrf().disable();
+                    .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
     }
 
     //todo Не уверен что это тут нужно :)

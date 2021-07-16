@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,7 +47,9 @@ public class MessageController {
 
     @GetMapping
     public List<Message> getAllMessages() {
-        return messageRepository.findAll();
+        List<Message> messages = messageRepository.findAll();
+        Collections.reverse(messages);
+        return messages;
     }
 
     @GetMapping("/{id}")
