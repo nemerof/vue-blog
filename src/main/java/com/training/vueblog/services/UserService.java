@@ -1,7 +1,9 @@
 package com.training.vueblog.services;
 
+import com.training.vueblog.objects.Role;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.UserRepository;
+import java.util.Collections;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,6 +35,8 @@ public class UserService implements UserDetailsService {
     }
 
     public void createUser(User user) {
+        user.setActive(true);
+        user.setRoles(Collections.singleton(Role.USER));
         user.setCreationDate(LocalDateTime.now());
         user.setId(UUID.randomUUID().toString());
         user.setPassword(encoder.encode(user.getPassword()));
