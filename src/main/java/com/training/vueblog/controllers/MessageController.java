@@ -60,13 +60,23 @@ public class MessageController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*") // не уверен что это нужно)
     @PostMapping("/add")
-    public Message addMessage(@AuthenticationPrincipal User user, @RequestPart("text") Message message, @RequestParam("file") MultipartFile file2)
-      throws IOException {
+    public Message addMessage(@AuthenticationPrincipal User user,
+                              @RequestPart("text") Message message,
+                              @RequestParam("file") MultipartFile file) throws IOException {
       message.setId(UUID.randomUUID().toString());
       message.setCreationDate(LocalDateTime.now());
       message.setUser(user);
 
-      messageRepository.save(message);
+        if (!file.isEmpty()) {
+            String link = message.getPhotoLink();
+            String photoId = UUID.randomUUID().toString() + link.substring(link.indexOf("."));
+            BlobId blobId = BlobId.of("vueblog-files-bucket", photoId);
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+            storage.create(blobInfo, file.getBytes());
+            message.setPhotoLink("https://storage.googleapis.com/vueblog-files-bucket/" + photoId);
+        }
+
+        messageRepository.save(message);
 
       return message;
     }

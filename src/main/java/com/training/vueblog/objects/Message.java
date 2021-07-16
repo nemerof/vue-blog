@@ -20,6 +20,9 @@ public class Message {
     private String body;
     private LocalDateTime creationDate;
 
+    //todo Remake to collections of photos
+    private String photoLink;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
