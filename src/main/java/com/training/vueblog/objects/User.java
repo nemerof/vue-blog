@@ -48,7 +48,7 @@ public class User implements UserDetails {
 
     private boolean active;
 
-    private String profilePic;
+    private String photoLink;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
@@ -141,7 +141,7 @@ public class User implements UserDetails {
       ", creationDate=" + creationDate +
       ", lastVisit=" + lastVisit +
       ", active=" + active +
-      ", profilePic='" + profilePic + '\'' +
+      ", photoLink='" + photoLink + '\'' +
       ", roles=" + roles +
       '}';
   }
