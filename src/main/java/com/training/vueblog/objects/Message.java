@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -20,12 +21,18 @@ public class Message {
     private String body;
     private LocalDateTime creationDate;
 
+    //todo Remake to collections of photos
+    private String photoLink;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ElementCollection
     private List<String> tags;
+
+    @ElementCollection
+    private Set<String> userLikes;
 
     public Message(String body, LocalDateTime creationDate, List<String> tags) {
         this.body = body;
