@@ -8,6 +8,8 @@ import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.MessageRepository;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/message")
@@ -82,7 +87,39 @@ public class MessageController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteMessage(@PathVariable String id) {
-        messageRepository.deleteById(id);
+    public void deleteMessage(@AuthenticationPrincipal User user,
+                              @PathVariable String id) {
+        Message message = messageRepository.findById(id).orElse(null);
+        if (message != null && user.getId().equals(message.getUser().getId())) {
+            String photoLink = message.getPhotoLink();
+            if (photoLink != null) {
+                System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
+                BlobId blobId = BlobId.of("vueblog-files-bucket", photoLink.substring(photoLink.lastIndexOf("/") + 1));
+                storage.delete(blobId);
+            }
+            messageRepository.delete(message);
+        }
+    }
+    
+    @GetMapping("/like/{id}")
+    public ResponseEntity<Message> like(@AuthenticationPrincipal User user,
+                     @PathVariable String id) {
+        messageRepository.findById(id).ifPresent(message -> {
+            message.getUserLikes().add(user.getId());
+            messageRepository.save(message);
+        });
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/unlike/{id}")
+    public ResponseEntity<Message> unlike(@AuthenticationPrincipal User user,
+                                 @PathVariable String id) {
+        messageRepository.findById(id).ifPresent(message -> {
+            message.getUserLikes().remove(user.getId());
+            messageRepository.save(message);
+        });
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
