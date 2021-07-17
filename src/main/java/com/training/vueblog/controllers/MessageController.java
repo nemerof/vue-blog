@@ -30,16 +30,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/api/message")
 public class MessageController {
 
-    private final MessageRepository messageRepository;
-
     private final Storage storage;
 
     private final MessageService messageService;
 
     @Autowired
-    public MessageController(MessageRepository messageRepository, Storage storage,
+    public MessageController(Storage storage,
       MessageService messageService) {
-        this.messageRepository = messageRepository;
         this.storage = storage;
         this.messageService = messageService;
     }

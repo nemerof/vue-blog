@@ -50,7 +50,7 @@ public class MessageService {
 
     if (!file.isEmpty()) {
       String link = message.getPhotoLink();
-      String photoId = UUID.randomUUID().toString() + link.substring(link.indexOf("."));
+      String photoId = UUID.randomUUID() + link.substring(link.indexOf("."));
       BlobId blobId = BlobId.of("vueblog-files-bucket", photoId);
       BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
       storage.create(blobInfo, file.getBytes());

@@ -18,33 +18,20 @@ public class UserRegistrationController {
 
     private final UserService userService;
 
-    private final UserRepository userRepository;
-
-    public UserRegistrationController(UserService userService, UserRepository userRepository) {
+    public UserRegistrationController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping
     public ResponseEntity<User> registerUser(@RequestPart("user") User user,
                                              @RequestParam("file") MultipartFile file)
       throws IOException {
-        User dbUser = userRepository.getByUsername(user.getUsername()).orElse(null);
-        if (dbUser != null) {
-            return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED); // user with such username already exists
-        }
 
-        userService.createUser(user, file);
-
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return userService.registerUser(user, file);
     }
 
     @GetMapping
     public User getUser(@AuthenticationPrincipal User user) {
-        if (user != null)
-            System.out.println(user.getPassword());
-        else
-            System.out.println("No principal");
-        return user;
+        return userService.getUser(user);
     }
 }
