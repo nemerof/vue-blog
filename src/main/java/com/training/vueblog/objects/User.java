@@ -1,32 +1,25 @@
 package com.training.vueblog.objects;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
-import javax.persistence.Column;
 import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Map;
 
 @Entity
 @Table(name = "usr")
@@ -55,21 +48,21 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    @JoinTable(
-//      name = "user_subscriptions",
-//      joinColumns = {@JoinColumn(name = "channel_id")},
-//      inverseJoinColumns = {@JoinColumn(name = "subscriber_id")}
-//    )
-//    private Set<User> subscribers = new HashSet<>();
-//
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    @JoinTable(
-//      name = "user_subscriptions",
-//      joinColumns = {@JoinColumn(name = "subscriber_id")},
-//      inverseJoinColumns = {@JoinColumn(name = "channel_id")}
-//    )
-//    private Set<User> subscriptions = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+      name = "user_subscriptions",
+      joinColumns = {@JoinColumn(name = "channel_id")},
+      inverseJoinColumns = {@JoinColumn(name = "subscriber_id")}
+    )
+    private Set<User> subscribers = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+      name = "user_subscriptions",
+      joinColumns = {@JoinColumn(name = "subscriber_id")},
+      inverseJoinColumns = {@JoinColumn(name = "channel_id")}
+    )
+    private Set<User> subscriptions = new HashSet<>();
 //
 //    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    @JoinTable(
