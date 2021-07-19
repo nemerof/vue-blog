@@ -52,8 +52,9 @@ public class MessageController {
     }
 
     @GetMapping
-    public List<Message> getAllMessages() {
-        return messageService.getAllMessages();
+    public List<Message> getAllMessages(@RequestParam(required = false) String filter,
+                                        @RequestParam(name = "bytag", required = false) Boolean findByTag) {
+        return messageService.getAllMessages(filter, findByTag);
     }
 
     @GetMapping("/{id}")

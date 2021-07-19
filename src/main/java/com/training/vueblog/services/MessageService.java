@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,31 @@ public class MessageService {
     this.storage = storage;
   }
 
-  public List<Message> getAllMessages() {
-    List<Message> messages = messageRepository.findAll();
+  public List<Message> getAllMessages(String filter, Boolean findByTag) {
+    List<Message> messages;
+    if (filter != null && !filter.isEmpty()) {
+      if (findByTag) {
+        messages = messageRepository.findAll();
+        ListIterator<Message> iterator = messages.listIterator();
+        while (iterator.hasNext()) {
+          List<String> tags = iterator.next().getTags();
+          boolean isAlright = false;
+          for (String tag : tags) {
+            if (tag.contains(filter)) {
+              isAlright = true;
+              break;
+            }
+          }
+          if (!isAlright)
+            iterator.remove();
+        }
+        System.out.println(messages.toString());
+      } else {
+        messages = messageRepository.findAllByBodyContains(filter);
+      }
+    } else {
+      messages = messageRepository.findAll();
+    }
     Collections.reverse(messages);
     return messages;
   }
