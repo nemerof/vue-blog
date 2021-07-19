@@ -1,5 +1,6 @@
 package com.training.vueblog.objects;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,7 +27,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Setter
 // todo Implement all UserDetails interface methods
-public class User implements UserDetails {
+public class User implements UserDetails, Serializable {
 
     @Id
     private String id;
@@ -43,7 +44,7 @@ public class User implements UserDetails {
 
     private String photoLink;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "tag_subscribers",
             joinColumns = {@JoinColumn(name = "user_id")},

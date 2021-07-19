@@ -22,10 +22,11 @@ public class TagController {
     @GetMapping
     public User subToTag(@AuthenticationPrincipal User user,
                          @RequestParam String tag) {
-        user.getSubTags().add(tagRepository.getByContent(tag));
+        User dbUser = userRepository.getByUsername(user.getUsername()).orElse(null);
+        dbUser.getSubTags().add(tagRepository.getByContent(tag));
 
-        userRepository.save(user);
+        userRepository.save(dbUser);
 
-        return user;
+        return dbUser;
     }
 }

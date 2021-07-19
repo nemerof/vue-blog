@@ -9,10 +9,7 @@ import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.MessageRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.UUID;
+import java.util.*;
 
 import com.training.vueblog.repositories.TagRepository;
 import org.springframework.http.HttpStatus;
@@ -53,7 +50,6 @@ public class MessageService {
           if (!isAlright)
             iterator.remove();
         }
-        System.out.println(messages.toString());
       } else {
         messages = messageRepository.findAllByBodyContains(filter);
       }
@@ -64,7 +60,7 @@ public class MessageService {
     return messages;
   }
 
-  public Message getOne(String id) {
+  public Message getMessage(String id) {
     return messageRepository.findById(id).orElse(null);
   }
 
@@ -75,7 +71,13 @@ public class MessageService {
     message.setUser(user);
 
     for (Tag tag : message.getTags()) {
-      tagRepository.save(tag);
+      if (tagRepository.getByContent(tag.getContent()) == null)
+        tagRepository.save(tag);
+    }
+    List<Tag> tags = message.getTags();
+    message.setTags(new ArrayList<>());
+    for (Tag tag : tags) {
+      message.getTags().add(tagRepository.getByContent(tag.getContent()));
     }
 
     if (!file.isEmpty()) {

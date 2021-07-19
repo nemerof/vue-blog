@@ -58,8 +58,8 @@ public class MessageController {
     }
 
     @GetMapping("/{id}")
-    public Message getOne(@PathVariable String id) {
-        return messageService.getOne(id);
+    public Message getMessage(@PathVariable String id) {
+        return messageService.getMessage(id);
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*") // не уверен что это нужно)
