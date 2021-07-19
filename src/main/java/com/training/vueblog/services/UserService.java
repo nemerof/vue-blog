@@ -7,20 +7,18 @@ import com.training.vueblog.objects.Role;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.UserRepository;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -82,4 +80,12 @@ public class UserService implements UserDetailsService {
         System.out.println("No principal");
       return user;
     }
+
+  public List<User> getUsers() {
+    return userRepository.findAll();
+  }
+
+  public Set<User> getSubscriptions(User user) {
+    return user.getSubscriptions();
+  }
 }

@@ -2,6 +2,7 @@ package com.training.vueblog.controllers;
 
 import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.UserRepository;
+import com.training.vueblog.services.LoginService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,46 +28,14 @@ import static org.springframework.security.web.context.HttpSessionSecurityContex
 @RequestMapping("/api/login")
 public class LoginController {
 
-    private final AuthenticationManager authManager;
+    private final LoginService loginService;
 
-    private final UserRepository userRepository;
-
-    private final PasswordEncoder encoder;
-
-    public LoginController(AuthenticationManager authManager, UserRepository userRepository, PasswordEncoder encoder) {
-        this.authManager = authManager;
-        this.userRepository = userRepository;
-        this.encoder = encoder;
+    public LoginController(LoginService loginService) {
+      this.loginService = loginService;
     }
 
     @PostMapping
     public ResponseEntity<User> authorize(@RequestBody User user, HttpServletRequest req) {
-        User dbUser = userRepository.getByUsername(user.getUsername()).orElse(null);
-
-        if (dbUser == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_GATEWAY); // nonexistent user
-        }
-
-        if (!encoder.matches(user.getPassword(), dbUser.getPassword())) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // wrong password
-        }
-
-        dbUser.setLastVisit(LocalDateTime.now());
-        userRepository.save(dbUser);
-
-        login(req, user.getUsername(), user.getPassword());
-        return new ResponseEntity<>(dbUser, HttpStatus.OK);
-    }
-
-    // actual creation of Authentication Principal
-    public void login(HttpServletRequest req, String user, String pass) {
-        UsernamePasswordAuthenticationToken authReq
-                = new UsernamePasswordAuthenticationToken(user, pass);
-        Authentication auth = authManager.authenticate(authReq);
-
-        SecurityContext sc = SecurityContextHolder.getContext();
-        sc.setAuthentication(auth);
-        HttpSession session = req.getSession(true);
-        session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, sc);
+      return loginService.authorize(user, req);
     }
 }
