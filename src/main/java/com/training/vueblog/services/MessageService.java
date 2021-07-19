@@ -4,6 +4,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Message;
+import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.MessageRepository;
 import java.io.IOException;
@@ -12,13 +13,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
+
+import com.training.vueblog.repositories.TagRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -28,9 +27,12 @@ public class MessageService {
 
   private final Storage storage;
 
-  public MessageService(MessageRepository messageRepository, Storage storage) {
+  private final TagRepository tagRepository;
+
+  public MessageService(MessageRepository messageRepository, Storage storage, TagRepository tagRepository) {
     this.messageRepository = messageRepository;
     this.storage = storage;
+    this.tagRepository = tagRepository;
   }
 
   public List<Message> getAllMessages(String filter, Boolean findByTag) {
@@ -40,10 +42,10 @@ public class MessageService {
         messages = messageRepository.findAll();
         ListIterator<Message> iterator = messages.listIterator();
         while (iterator.hasNext()) {
-          List<String> tags = iterator.next().getTags();
+          List<Tag> tags = iterator.next().getTags();
           boolean isAlright = false;
-          for (String tag : tags) {
-            if (tag.contains(filter)) {
+          for (Tag tag : tags) {
+            if (tag.getContent().contains(filter)) {
               isAlright = true;
               break;
             }
@@ -71,6 +73,10 @@ public class MessageService {
     message.setId(UUID.randomUUID().toString());
     message.setCreationDate(LocalDateTime.now());
     message.setUser(user);
+
+    for (Tag tag : message.getTags()) {
+      tagRepository.save(tag);
+    }
 
     if (!file.isEmpty()) {
       String link = message.getPhotoLink();

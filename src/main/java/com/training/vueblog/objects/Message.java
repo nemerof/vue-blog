@@ -28,13 +28,18 @@ public class Message {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ElementCollection
-    private List<String> tags;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "message_tags",
+            joinColumns = {@JoinColumn(name = "message_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")}
+    )
+    private List<Tag> tags;
 
     @ElementCollection
     private Set<String> userLikes;
 
-    public Message(String body, LocalDateTime creationDate, List<String> tags) {
+    public Message(String body, LocalDateTime creationDate, List<Tag> tags) {
         this.body = body;
         this.creationDate = creationDate;
         this.tags = tags;
