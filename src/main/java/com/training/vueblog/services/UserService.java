@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -87,5 +88,15 @@ public class UserService implements UserDetailsService {
 
   public Set<User> getSubscriptions(User user) {
     return user.getSubscriptions();
+  }
+
+  public List<User> getUsersByPattern(String inputPattern) {
+    return userRepository.findAllByUsernameContains(inputPattern);
+  }
+
+  public Set<User> getSubscriptionsByPattern(User user, String inputPattern) {
+    return user.getSubscriptions().stream()
+      .filter(p -> p.getUsername().contains(inputPattern))
+      .collect(Collectors.toSet());
   }
 }
