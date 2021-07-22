@@ -94,13 +94,23 @@ public class MessageService {
 
   public void deleteMessage(User user, String id) {
     Message message = messageRepository.findById(id).orElse(null);
+
     if (message != null && user.getId().equals(message.getUser().getId())) {
+      String photoLink = message.getPhotoLink();
+      List<Tag> tags = message.getTags();
 
-      if(message.getTags().size() > 0) {
-        for(int i = 0; i < message.getTags().size(); i++) {
-          Tag tag = tagRepository.getByContent(message.getTags().get(i).getContent());
+      if (photoLink != null) {
+        System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
+        BlobId blobId = BlobId.of("vueblog-files-bucket", photoLink.substring(photoLink.lastIndexOf("/") + 1));
+        storage.delete(blobId);
+      }
+      messageRepository.delete(message);
 
-          if(tag.getNumberOfMessages() == 1) {
+      if (tags.size() > 0) {
+        for (Tag value : tags) {
+          Tag tag = tagRepository.getByContent(value.getContent());
+
+          if (tag.getNumberOfMessages() == 1) {
             tagRepository.delete(tag);
           } else {
             tag.setNumberOfMessages(tag.getNumberOfMessages() - 1);
@@ -108,14 +118,6 @@ public class MessageService {
           }
         }
       }
-
-      String photoLink = message.getPhotoLink();
-      if (photoLink != null) {
-        System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
-        BlobId blobId = BlobId.of("vueblog-files-bucket", photoLink.substring(photoLink.lastIndexOf("/") + 1));
-        storage.delete(blobId);
-      }
-      messageRepository.delete(message);
     }
   }
 
