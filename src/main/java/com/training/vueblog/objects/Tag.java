@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Tag implements Serializable {
+public class Tag implements Serializable, Comparable<Tag> {
 
     @Id
     private String id;
@@ -49,4 +49,13 @@ public class Tag implements Serializable {
     public int hashCode() {
         return Objects.hash(id, content);
     }
+
+  @Override
+  public int compareTo(Tag t) {
+    if(this.getNumberOfMessages() > t.getNumberOfMessages()) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
 }

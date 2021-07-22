@@ -1,7 +1,9 @@
 package com.training.vueblog.controllers;
 
+import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.services.TagService;
+import java.util.List;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,4 +25,9 @@ public class TagController {
                          @RequestParam String tag) {
         return tagService.subToTag(user, tag);
     }
+
+  @GetMapping("/popular")
+  public List<Tag> getPopularTags() {
+    return tagService.getPopularTags();
+  }
 }
