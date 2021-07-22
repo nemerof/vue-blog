@@ -1,32 +1,26 @@
 package com.training.vueblog.controllers;
 
 import com.training.vueblog.objects.User;
-import com.training.vueblog.repositories.TagRepository;
-import com.training.vueblog.repositories.UserRepository;
+import com.training.vueblog.services.TagService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/tags")
 public class TagController {
 
-    private final TagRepository tagRepository;
+    private final TagService tagService;
 
-    private final UserRepository userRepository;
+  public TagController(TagService tagService) {
+    this.tagService = tagService;
+  }
 
-    public TagController(TagRepository tagRepository, UserRepository userRepository) {
-        this.tagRepository = tagRepository;
-        this.userRepository = userRepository;
-    }
-
-    @GetMapping
+  @GetMapping
     public User subToTag(@AuthenticationPrincipal User user,
                          @RequestParam String tag) {
-        User dbUser = userRepository.getByUsername(user.getUsername()).orElse(null);
-        dbUser.getSubTags().add(tagRepository.getByContent(tag));
-
-        userRepository.save(dbUser);
-
-        return dbUser;
+        return tagService.subToTag(user, tag);
     }
 }

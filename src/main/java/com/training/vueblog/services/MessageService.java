@@ -7,11 +7,14 @@ import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.MessageRepository;
+import com.training.vueblog.repositories.TagRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
-
-import com.training.vueblog.repositories.TagRepository;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,20 +39,10 @@ public class MessageService {
     List<Message> messages;
     if (filter != null && !filter.isEmpty()) {
       if (findByTag) {
-        messages = messageRepository.findAll();
-        ListIterator<Message> iterator = messages.listIterator();
-        while (iterator.hasNext()) {
-          List<Tag> tags = iterator.next().getTags();
-          boolean isAlright = false;
-          for (Tag tag : tags) {
-            if (tag.getContent().contains(filter)) {
-              isAlright = true;
-              break;
-            }
-          }
-          if (!isAlright)
-            iterator.remove();
-        }
+        messages = messageRepository.findAll()
+                  .stream().filter(p -> p.getTags()
+            .stream().anyMatch(t -> t.getContent().contains(filter))).collect(
+            Collectors.toList());
       } else {
         messages = messageRepository.findAllByBodyContains(filter);
       }
@@ -71,8 +64,13 @@ public class MessageService {
     message.setUser(user);
 
     for (Tag tag : message.getTags()) {
-      if (tagRepository.getByContent(tag.getContent()) == null)
-        tagRepository.save(tag);
+      if (tagRepository.getByContent(tag.getContent()) == null) {
+        tag.setNumberOfMessages(1);
+      } else {
+        tag = tagRepository.getByContent(tag.getContent());
+        tag.setNumberOfMessages(tag.getNumberOfMessages() + 1);
+      }
+      tagRepository.save(tag);
     }
     List<Tag> tags = message.getTags();
     message.setTags(new ArrayList<>());
@@ -97,6 +95,20 @@ public class MessageService {
   public void deleteMessage(User user, String id) {
     Message message = messageRepository.findById(id).orElse(null);
     if (message != null && user.getId().equals(message.getUser().getId())) {
+
+      if(message.getTags().size() > 0) {
+        for(int i = 0; i < message.getTags().size(); i++) {
+          Tag tag = tagRepository.getByContent(message.getTags().get(i).getContent());
+
+          if(tag.getNumberOfMessages() == 1) {
+            tagRepository.delete(tag);
+          } else {
+            tag.setNumberOfMessages(tag.getNumberOfMessages() - 1);
+            tagRepository.save(tag);
+          }
+        }
+      }
+
       String photoLink = message.getPhotoLink();
       if (photoLink != null) {
         System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
