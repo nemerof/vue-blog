@@ -1,11 +1,13 @@
 package com.training.vueblog.controllers;
 
+import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.services.TagService;
 import java.util.List;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/tags")
 public class TagController {
 
-    private final TagService tagService;
+  private final TagService tagService;
 
   public TagController(TagService tagService) {
     this.tagService = tagService;
@@ -29,5 +31,10 @@ public class TagController {
   @GetMapping("/popular")
   public List<Tag> getPopularTags() {
     return tagService.getPopularTags();
+  }
+
+  @GetMapping("/{tag}")
+  public List<Message> getTagMessages(@PathVariable String tag) {
+    return tagService.getTagMessages(tag);
   }
 }

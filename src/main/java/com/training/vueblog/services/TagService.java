@@ -1,5 +1,6 @@
 package com.training.vueblog.services;
 
+import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.TagRepository;
@@ -15,10 +16,13 @@ public class TagService {
 
   private final UserRepository userRepository;
 
+  private final MessageService messageService;
+
   public TagService(TagRepository tagRepository,
-    UserRepository userRepository) {
+    UserRepository userRepository, MessageService messageService) {
     this.tagRepository = tagRepository;
     this.userRepository = userRepository;
+    this.messageService = messageService;
   }
 
   public User subToTag(User user, String tag) {
@@ -31,5 +35,9 @@ public class TagService {
   public List<Tag> getPopularTags() {
     return tagRepository.findAll().stream().sorted(Tag::compareTo)
       .collect(Collectors.toList());
+  }
+
+  public List<Message> getTagMessages(String tag) {
+    return messageService.getAllMessages(tag, true);
   }
 }
