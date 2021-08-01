@@ -89,3 +89,7 @@ public class MessageController {
         return messageService.unlike(user, id);
     }
 }
+
+class TestClass {
+
+}

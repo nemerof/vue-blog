@@ -3,7 +3,9 @@ package com.training.vueblog.services;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.Role;
+import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.UserRepository;
 import java.io.IOException;
@@ -98,5 +100,33 @@ public class UserService implements UserDetailsService {
     return user.getSubscriptions().stream()
       .filter(p -> p.getUsername().contains(inputPattern))
       .collect(Collectors.toSet());
+  }
+
+  public List<User> getUsersExceptCurrent(User user) {
+    List<User> users = userRepository.findAll();
+    users.remove(user);
+    return users;
+  }
+
+  public List<User> getFilteredUsersExceptCurrent(User user, String inputPattern) {
+      return  getUsersExceptCurrent(user).stream()
+        .filter(p -> p.getUsername().contains(inputPattern))
+        .collect(Collectors.toList());
+  }
+
+  public void deleteUser(String id) {
+    User user  = userRepository.findById(id).orElse(null);
+
+    if (user != null) {
+      String photoLink = user.getPhotoLink();
+
+      if (photoLink != null) {
+        System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
+        BlobId blobId = BlobId.of("vueblog-files-bucket", photoLink.substring(photoLink.lastIndexOf("/") + 1));
+        storage.delete(blobId);
+      }
+      userRepository.delete(user);
+
+    }
   }
 }
