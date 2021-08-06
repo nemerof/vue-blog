@@ -48,8 +48,10 @@ public class Message implements Serializable {
 
     @Override
     public String toString() {
-        return String.format(
-                "Message[id=%s, body='%s', creationDate='%s']",
-                id, body, creationDate);
+        return "Message{" +
+                "id='" + id + '\'' +
+                ", body='" + body + '\'' +
+                ", tags=" + tags +
+                '}';
     }
 }

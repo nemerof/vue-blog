@@ -15,6 +15,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,21 +38,22 @@ public class MessageService {
     this.tagRepository = tagRepository;
   }
 
-  public List<Message> getAllMessages(String filter, Boolean findByTag) {
+  public List<Message> getAllMessages(String filter, Boolean findByTag, Pageable pageable) {
     List<Message> messages;
+
     if (filter != null && !filter.isEmpty()) {
       if (findByTag) {
-        messages = messageRepository.findAll()
+        messages = messageRepository.findAll(pageable)
                   .stream().filter(p -> p.getTags()
             .stream().anyMatch(t -> t.getContent().contains(filter))).collect(
             Collectors.toList());
       } else {
-        messages = messageRepository.findAllByBodyContains(filter);
+        messages = messageRepository.findAllByBodyContains(filter, pageable).getContent();
       }
     } else {
-      messages = messageRepository.findAll();
+      messages = messageRepository.findAll(pageable).getContent();
     }
-    Collections.reverse(messages);
+    System.out.println(messages.size() + " " + pageable.getPageNumber());
     return messages;
   }
 

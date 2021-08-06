@@ -7,6 +7,9 @@ import com.training.vueblog.repositories.TagRepository;
 import com.training.vueblog.repositories.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,7 +40,7 @@ public class TagService {
       .collect(Collectors.toList());
   }
 
-  public List<Message> getTagMessages(String tag) {
-    return messageService.getAllMessages(tag, true);
+  public List<Message> getTagMessages(String tag, Pageable pageable) {
+    return messageService.getAllMessages(tag, true, pageable);
   }
 }

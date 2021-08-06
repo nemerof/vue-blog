@@ -9,6 +9,10 @@ import com.training.vueblog.repositories.MessageRepository;
 import com.training.vueblog.services.MessageService;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -53,8 +57,9 @@ public class MessageController {
 
     @GetMapping
     public List<Message> getAllMessages(@RequestParam(required = false) String filter,
-                                        @RequestParam(name = "bytag", required = false) Boolean findByTag) {
-        return messageService.getAllMessages(filter, findByTag);
+                                        @RequestParam(name = "bytag", required = false) Boolean findByTag,
+                                        @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
+        return messageService.getAllMessages(filter, findByTag, pageable);
     }
 
     @GetMapping("/{id}")
