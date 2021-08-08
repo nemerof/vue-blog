@@ -13,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,15 +24,17 @@ public class TagController {
 
   private final TagService tagService;
 
+  private Tag tagToOpen;
+
   public TagController(TagService tagService) {
     this.tagService = tagService;
   }
 
   @GetMapping
-    public User subToTag(@AuthenticationPrincipal User user,
+  public User subToTag(@AuthenticationPrincipal User user,
                          @RequestParam String tag) {
-        return tagService.subToTag(user, tag);
-    }
+    return tagService.subToTag(user, tag);
+  }
 
   @GetMapping("/popular")
   public List<Tag> getPopularTags() {
@@ -43,4 +46,5 @@ public class TagController {
                                       @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
     return tagService.getTagMessages(tag, pageable);
   }
+
 }

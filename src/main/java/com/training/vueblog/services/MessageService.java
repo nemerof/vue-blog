@@ -143,4 +143,7 @@ public class MessageService {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
+  public List<Message> getUserMessages(String username) {
+    return messageRepository.findAllByUserUsername(username);
+  }
 }

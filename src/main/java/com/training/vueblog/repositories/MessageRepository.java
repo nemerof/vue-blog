@@ -10,4 +10,5 @@ import java.util.List;
 public interface MessageRepository extends JpaRepository<Message, String> {
     Page<Message> findAllByBodyContains(String filter, Pageable pageable);
     Page<Message> findAll(Pageable pageable);
+    List<Message> findAllByUserUsername(String name);
 }
