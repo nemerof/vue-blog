@@ -62,6 +62,11 @@ public class MessageController {
         return messageService.getAllMessages(filter, findByTag, pageable);
     }
 
+    @GetMapping("/user/{username}")
+    public List<Message> getUserMessages(@PathVariable String username) {
+      return messageService.getUserMessages(username);
+    }
+
     @GetMapping("/{id}")
     public Message getMessage(@PathVariable String id) {
         return messageService.getMessage(id);
@@ -93,8 +98,4 @@ public class MessageController {
                                  @PathVariable String id) {
         return messageService.unlike(user, id);
     }
-}
-
-class TestClass {
-
 }
