@@ -92,6 +92,10 @@ public class UserService implements UserDetailsService {
     return user.getSubscriptions();
   }
 
+  public Set<User> getSubscribers(User user) {
+      return user.getSubscribers();
+  }
+
   public List<User> getUsersByPattern(String inputPattern) {
     return userRepository.findAllByUsernameContains(inputPattern);
   }
