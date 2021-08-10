@@ -13,7 +13,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,8 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class TagController {
 
   private final TagService tagService;
-
-  private Tag tagToOpen;
 
   public TagController(TagService tagService) {
     this.tagService = tagService;
@@ -42,8 +39,13 @@ public class TagController {
   }
 
   @GetMapping("/{tag}")
+  public Tag getTag(@PathVariable String tag) {
+    return tagService.getTag(tag);
+  }
+
+  @GetMapping("/messages/{tag}")
   public List<Message> getTagMessages(@PathVariable String tag,
-                                      @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
+    @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
     return tagService.getTagMessages(tag, pageable);
   }
 

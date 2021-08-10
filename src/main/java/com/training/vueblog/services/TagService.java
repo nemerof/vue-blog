@@ -44,4 +44,8 @@ public class TagService {
   public List<Message> getTagMessages(String tag, Pageable pageable) {
     return messageService.getAllMessages(tag, true, pageable);
   }
+
+  public Tag getTag(String tag) {
+    return tagRepository.getByContent(tag);
+  }
 }
