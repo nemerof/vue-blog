@@ -9,7 +9,6 @@ import com.training.vueblog.repositories.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +20,24 @@ public class TagService {
   private final UserRepository userRepository;
 
   private final MessageService messageService;
+  private final UserService userService;
 
   public TagService(TagRepository tagRepository,
-    UserRepository userRepository, MessageService messageService) {
+                    UserRepository userRepository, MessageService messageService, UserService userService) {
     this.tagRepository = tagRepository;
     this.userRepository = userRepository;
     this.messageService = messageService;
+    this.userService = userService;
   }
 
-  public User subToTag(User user, String tag) {
-    User dbUser = userRepository.getByUsername(user.getUsername()).orElse(null);
-    dbUser.getSubTags().add(tagRepository.getByContent(tag));
+  public User subToTag(User user, String tagContent) {
+    User dbUser = userService.getUser(user);
+    Tag tag = tagRepository.getByContent(tagContent);
+    if (dbUser.getSubTags().contains(tag)) {
+      dbUser.getSubTags().remove(tag);
+    } else {
+      dbUser.getSubTags().add(tag);
+    }
     userRepository.save(dbUser);
     return dbUser;
   }

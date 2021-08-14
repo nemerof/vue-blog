@@ -63,8 +63,9 @@ public class MessageController {
     }
 
     @GetMapping("/user/{username}")
-    public List<Message> getUserMessages(@PathVariable String username) {
-      return messageService.getUserMessages(username);
+    public List<Message> getUserMessages(@PathVariable String username,
+                                         @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
+      return messageService.getUserMessages(username, pageable);
     }
 
     @GetMapping("/{id}")

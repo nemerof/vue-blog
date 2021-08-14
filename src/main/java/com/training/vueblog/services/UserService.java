@@ -3,20 +3,18 @@ package com.training.vueblog.services;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
-import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.Role;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
+import com.training.vueblog.repositories.TagRepository;
 import com.training.vueblog.repositories.UserRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,11 +31,17 @@ public class UserService implements UserDetailsService {
 
     private final Storage storage;
 
+    private final TagRepository tagRepository;
+
+    private final JdbcTemplate jdbcTemplate;
+
     public UserService(UserRepository userRepository, PasswordEncoder encoder,
-      Storage storage) {
+                       Storage storage, TagRepository tagRepository, JdbcTemplate jdbcTemplate) {
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.storage = storage;
+        this.tagRepository = tagRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     // Used for authenticating of the user
@@ -77,11 +81,19 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUser(User user) {
-      if (user != null)
-        System.out.println(user.getPassword());
-      else
-        System.out.println("No principal");
-      return user;
+        if (user != null) {
+            System.out.println(user.getPassword());
+            Set<Tag> tags = new HashSet<>();
+            jdbcTemplate.query("SELECT * FROM tag_subscribers", resultSet -> {
+                String userId = resultSet.getString("user_id");
+                String tagId = resultSet.getString("tag_id");
+                if (userId.equals(user.getId()))
+                    tags.add(tagRepository.getById(tagId));
+            });
+            user.setSubTags(tags);
+        } else
+            System.out.println("No principal");
+        return user;
     }
 
   public List<User> getUsers() {

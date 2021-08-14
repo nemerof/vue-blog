@@ -29,7 +29,7 @@ public class Message implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "message_tags",
             joinColumns = {@JoinColumn(name = "message_id")},

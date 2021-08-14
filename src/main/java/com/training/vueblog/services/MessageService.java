@@ -113,7 +113,8 @@ public class MessageService {
       if (tags.size() > 0) {
         for (Tag value : tags) {
           Tag tag = tagRepository.getByContent(value.getContent());
-
+          if (tag == null)
+            continue;
           if (tag.getNumberOfMessages() == 1) {
             tagRepository.delete(tag);
           } else {
@@ -143,7 +144,7 @@ public class MessageService {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  public List<Message> getUserMessages(String username) {
-    return messageRepository.findAllByUserUsername(username);
+  public List<Message> getUserMessages(String username, Pageable pageable) {
+    return messageRepository.findAllByUserUsername(username, pageable).getContent();
   }
 }

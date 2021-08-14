@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -50,12 +51,12 @@ public class Tag implements Serializable, Comparable<Tag> {
         return Objects.hash(id, content);
     }
 
-  @Override
-  public int compareTo(Tag t) {
-    if(this.getNumberOfMessages() > t.getNumberOfMessages()) {
-      return 1;
-    } else {
-      return 0;
+    @Override
+    public int compareTo(Tag t) {
+        if (this.getNumberOfMessages() > t.getNumberOfMessages()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
-  }
 }
