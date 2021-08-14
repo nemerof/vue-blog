@@ -50,6 +50,12 @@ public class UserController {
   }
 
   @GetMapping
+  @RequestMapping("/api/subscribers")
+  public Set<User> getSubscribers(@AuthenticationPrincipal User user) {
+    return userService.getSubscribers(user);
+  }
+
+  @GetMapping
   @RequestMapping("/api/subscriptions")
   public Set<User> getSubscriptions(@AuthenticationPrincipal User user) {
     return userService.getSubscriptions(user);
