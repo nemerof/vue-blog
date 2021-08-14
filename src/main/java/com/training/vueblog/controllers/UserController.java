@@ -28,14 +28,14 @@ public class UserController {
   }
 
   @GetMapping
-  @PreAuthorize("hasRole('ADMIN')")
+//  @PreAuthorize("hasRole('ADMIN')")
   @RequestMapping("/api/users-except-current")
   public List<User> getUsersExceptCurrent(@AuthenticationPrincipal User user) {
     return userService.getUsersExceptCurrent(user);
   }
 
   @GetMapping
-  @PreAuthorize("hasRole('ADMIN')")
+//  @PreAuthorize("hasRole('ADMIN')")
   @RequestMapping("/api/users-except-current/{inputPattern}")
   public List<User> getFilteredUsersExceptCurrent(
     @AuthenticationPrincipal User user, @PathVariable String inputPattern) {
@@ -50,26 +50,63 @@ public class UserController {
   }
 
   @GetMapping
-  @RequestMapping("/api/subscribers")
-  public Set<User> getSubscribers(@AuthenticationPrincipal User user) {
-    return userService.getSubscribers(user);
-  }
-
-  @GetMapping
-  @RequestMapping("/api/subscriptions")
-  public Set<User> getSubscriptions(@AuthenticationPrincipal User user) {
-    return userService.getSubscriptions(user);
-  }
-
-  @GetMapping
   @RequestMapping("/api/users/{inputPattern}")
   public List<User> getUsersByPattern(@PathVariable String inputPattern) {
     return userService.getUsersByPattern(inputPattern);
   }
 
+//  @GetMapping
+//  @RequestMapping("/api/subscribers")
+//  public Set<User> getSubscribers(@AuthenticationPrincipal User user) {
+//    return userService.getSubscribers(user);
+//  }
+//
+//  @GetMapping
+//  @RequestMapping("/api/subscriptions")
+//  public Set<User> getSubscriptions(@AuthenticationPrincipal User user) {
+//    return userService.getSubscriptions(user);
+//  }
+//
+//  @GetMapping
+//  @RequestMapping("/api/subscriptions/{inputPattern}")
+//  public Set<User> getSubscriptionsByPattern(@AuthenticationPrincipal User user, @PathVariable String inputPattern) {
+//    return userService.getSubscriptionsByPattern(user, inputPattern);
+//  }
+//
+//  @GetMapping
+//  @RequestMapping("/api/subscriptions/another-user/{user}")
+//  public Set<User> getSubscriptionsOfAnotherUser(@PathVariable String user) {
+//    return userService.getSubscriptionsOfAnotherUser(user);
+//  }
+//
+//  @GetMapping
+//  @RequestMapping("/api/subscribers/another-user/{user}")
+//  public Set<User> getSubscribersOfAnotherUser(@PathVariable String user) {
+//    return userService.getSubscribersOfAnotherUser(user);
+//  }
+
   @GetMapping
-  @RequestMapping("/api/subscriptions/{inputPattern}")
-  public Set<User> getSubscriptionsByPattern(@AuthenticationPrincipal User user, @PathVariable String inputPattern) {
-    return userService.getSubscriptionsByPattern(user, inputPattern);
+  @RequestMapping("/api/subscribers/{user}")
+  public Set<User> getSubscribers(@PathVariable String user) {
+    return userService.getSubscribers(user);
   }
+
+  @GetMapping
+  @RequestMapping("/api/subscriptions/{user}")
+  public Set<User> getSubscriptions(@PathVariable String user) {
+    return userService.getSubscriptions(user);
+  }
+
+  @GetMapping
+  @RequestMapping("/api/subscribers/{user}/{pattern}")
+  public Set<User> getSubscribersByPattern(@PathVariable String user, @PathVariable String pattern) {
+    return userService.getSubscribersByPattern(user, pattern);
+  }
+
+  @GetMapping
+  @RequestMapping("/api/subscriptions/{user}/{pattern}")
+  public Set<User> getSubscriptionsByPattern(@PathVariable String user, @PathVariable String pattern) {
+    return userService.getSubscriptionsByPattern(user, pattern);
+  }
+
 }

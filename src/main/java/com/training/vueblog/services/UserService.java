@@ -100,23 +100,37 @@ public class UserService implements UserDetailsService {
     return userRepository.findAll();
   }
 
-  public Set<User> getSubscriptions(User user) {
-    return user.getSubscriptions();
+  public Set<User> getSubscriptions(String user) {
+    return userRepository.findByUsername(user).getSubscriptions();
   }
 
-  public Set<User> getSubscribers(User user) {
-      return user.getSubscribers();
+  public Set<User> getSubscribers(String user) {
+      return userRepository.findByUsername(user).getSubscribers();
   }
 
   public List<User> getUsersByPattern(String inputPattern) {
     return userRepository.findAllByUsernameContains(inputPattern);
   }
 
-  public Set<User> getSubscriptionsByPattern(User user, String inputPattern) {
-    return user.getSubscriptions().stream()
+  public Set<User> getSubscriptionsByPattern(String user, String inputPattern) {
+    return userRepository.findByUsername(user).getSubscriptions().stream()
       .filter(p -> p.getUsername().contains(inputPattern))
       .collect(Collectors.toSet());
   }
+
+  public Set<User> getSubscribersByPattern(String user, String inputPattern) {
+    return userRepository.findByUsername(user).getSubscriptions().stream()
+      .filter(p -> p.getUsername().contains(inputPattern))
+      .collect(Collectors.toSet());
+  }
+
+//  public Set<User> getSubscriptionsOfAnotherUser(String user) {
+//      return userRepository.findByUsername(user).getSubscriptions();
+//  }
+//
+//  public Set<User> getSubscribersOfAnotherUser(String user) {
+//    return userRepository.findByUsername(user).getSubscribers();
+//  }
 
   public List<User> getUsersExceptCurrent(User user) {
     List<User> users = userRepository.findAll();
