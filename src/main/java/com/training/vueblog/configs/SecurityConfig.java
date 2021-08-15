@@ -34,7 +34,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                     .antMatcher("/**")
                     .authorizeRequests()
-                    .antMatchers("/", "/js/**", "/css/**", "/api/message", "/api/user", "/api/login", "/api/tags/popular").permitAll()
+                    .antMatchers("/", "/js/**", "/css/**", "/api/message", "/api/user", "/api/login", "/api/tags/popular",
+                            "/api/message/user/**", "/api/subscribers/**", "/api/subscriptions/**", "/api/tags/**").permitAll()
                     .anyRequest().authenticated()
                 .and()
                     .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
