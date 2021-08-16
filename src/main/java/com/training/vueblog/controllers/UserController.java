@@ -4,12 +4,12 @@ import com.training.vueblog.objects.User;
 import com.training.vueblog.services.UserService;
 import java.util.List;
 import java.util.Set;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -55,35 +55,11 @@ public class UserController {
     return userService.getUsersByPattern(inputPattern);
   }
 
-//  @GetMapping
-//  @RequestMapping("/api/subscribers")
-//  public Set<User> getSubscribers(@AuthenticationPrincipal User user) {
-//    return userService.getSubscribers(user);
-//  }
-//
-//  @GetMapping
-//  @RequestMapping("/api/subscriptions")
-//  public Set<User> getSubscriptions(@AuthenticationPrincipal User user) {
-//    return userService.getSubscriptions(user);
-//  }
-//
-//  @GetMapping
-//  @RequestMapping("/api/subscriptions/{inputPattern}")
-//  public Set<User> getSubscriptionsByPattern(@AuthenticationPrincipal User user, @PathVariable String inputPattern) {
-//    return userService.getSubscriptionsByPattern(user, inputPattern);
-//  }
-//
-//  @GetMapping
-//  @RequestMapping("/api/subscriptions/another-user/{user}")
-//  public Set<User> getSubscriptionsOfAnotherUser(@PathVariable String user) {
-//    return userService.getSubscriptionsOfAnotherUser(user);
-//  }
-//
-//  @GetMapping
-//  @RequestMapping("/api/subscribers/another-user/{user}")
-//  public Set<User> getSubscribersOfAnotherUser(@PathVariable String user) {
-//    return userService.getSubscribersOfAnotherUser(user);
-//  }
+  @GetMapping
+  @RequestMapping("/api/subscribe")
+  public User subscribe(@AuthenticationPrincipal User user, @RequestParam String username) {
+    return userService.subscribe(user, username);
+  }
 
   @GetMapping
   @RequestMapping("/api/subscribers/{user}")
