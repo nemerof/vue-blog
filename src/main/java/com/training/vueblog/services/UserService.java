@@ -10,7 +10,11 @@ import com.training.vueblog.repositories.TagRepository;
 import com.training.vueblog.repositories.UserRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -158,5 +162,16 @@ public class UserService implements UserDetailsService {
       userRepository.delete(user);
 
     }
+  }
+
+  public User subscribe(User user, String username) {
+    User userSub = userRepository.findByUsername(username);
+    if (user.getSubscriptions().contains(userSub)) {
+      user.getSubscriptions().remove(userSub);
+    } else {
+      user.getSubscriptions().add(userSub);
+    }
+    userRepository.save(user);
+    return user;
   }
 }
