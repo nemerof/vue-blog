@@ -29,18 +29,18 @@ public class UserController {
 
   @GetMapping
 //  @PreAuthorize("hasRole('ADMIN')")
-  @RequestMapping("/api/users-except-current")
-  public List<User> getUsersExceptCurrent(@AuthenticationPrincipal User user) {
-    return userService.getUsersExceptCurrent(user);
+  @RequestMapping("/api/users-other-subscriptions")
+  public List<User> getUsersExceptCurrentSubscriptions(
+    @AuthenticationPrincipal User user, @RequestParam String inputPattern) {
+    return userService.getUsersExceptCurrentSubscriptions(user, inputPattern);
   }
 
-  @GetMapping
-//  @PreAuthorize("hasRole('ADMIN')")
-  @RequestMapping("/api/users-except-current/{inputPattern}")
-  public List<User> getFilteredUsersExceptCurrent(
-    @AuthenticationPrincipal User user, @PathVariable String inputPattern) {
-    return userService.getFilteredUsersExceptCurrent(user, inputPattern);
+  @RequestMapping("/api/users-other-subscribers")
+  public List<User> getUsersExceptCurrentSubscribers(
+    @AuthenticationPrincipal User user, @RequestParam String inputPattern) {
+    return userService.getUsersExceptCurrentSubscribers(user, inputPattern);
   }
+
 
   @DeleteMapping("/api/users/{id}")
   public void deleteUser(
@@ -63,26 +63,16 @@ public class UserController {
 
   @GetMapping
   @RequestMapping("/api/subscribers/{user}")
-  public Set<User> getSubscribers(@PathVariable String user) {
-    return userService.getSubscribers(user);
+  public Set<User> getSubscribersByPattern(
+    @PathVariable String user, @RequestParam String inputPattern) {
+    return userService.getSubscribersByPattern(user, inputPattern);
   }
 
   @GetMapping
   @RequestMapping("/api/subscriptions/{user}")
-  public Set<User> getSubscriptions(@PathVariable String user) {
-    return userService.getSubscriptions(user);
-  }
-
-  @GetMapping
-  @RequestMapping("/api/subscribers/{user}/{pattern}")
-  public Set<User> getSubscribersByPattern(@PathVariable String user, @PathVariable String pattern) {
-    return userService.getSubscribersByPattern(user, pattern);
-  }
-
-  @GetMapping
-  @RequestMapping("/api/subscriptions/{user}/{pattern}")
-  public Set<User> getSubscriptionsByPattern(@PathVariable String user, @PathVariable String pattern) {
-    return userService.getSubscriptionsByPattern(user, pattern);
+  public Set<User> getSubscriptionsByPattern(
+    @PathVariable String user, @RequestParam String inputPattern) {
+    return userService.getSubscriptionsByPattern(user, inputPattern);
   }
 
 }
