@@ -94,7 +94,15 @@ public class UserService implements UserDetailsService {
                 if (userId.equals(user.getId()))
                     tags.add(tagRepository.getById(tagId));
             });
+            Set<User> subscriptions = new HashSet<>();
+            jdbcTemplate.query("SELECT * FROM user_subscriptions", resultSet -> {
+              String subscriberId = resultSet.getString("subscriber_id");
+              String channelId = resultSet.getString("channel_id");
+              if (subscriberId.equals(user.getId()))
+                subscriptions.add(userRepository.findById(channelId).get());
+            });
             user.setSubTags(tags);
+            user.setSubscriptions(subscriptions);
         } else
             System.out.println("No principal");
         return user;
@@ -117,15 +125,25 @@ public class UserService implements UserDetailsService {
   }
 
   public Set<User> getSubscriptionsByPattern(String user, String inputPattern) {
+    if(inputPattern.equals("")) {
+      User u = userRepository.findByUsername(user); ////////////////////////////////////////////////
+      Set<User> users = userRepository.findByUsername(user).getSubscriptions();
+      return users;
+    }
     return userRepository.findByUsername(user).getSubscriptions().stream()
       .filter(p -> p.getUsername().contains(inputPattern))
       .collect(Collectors.toSet());
   }
 
   public Set<User> getSubscribersByPattern(String user, String inputPattern) {
-    return userRepository.findByUsername(user).getSubscriptions().stream()
+    if(inputPattern.equals("")) {
+      Set<User> users =  userRepository.findByUsername(user).getSubscribers();
+      return users;
+    }
+    Set<User> users = userRepository.findByUsername(user).getSubscribers().stream()
       .filter(p -> p.getUsername().contains(inputPattern))
       .collect(Collectors.toSet());
+    return users;
   }
 
 //  public Set<User> getSubscriptionsOfAnotherUser(String user) {
@@ -136,16 +154,28 @@ public class UserService implements UserDetailsService {
 //    return userRepository.findByUsername(user).getSubscribers();
 //  }
 
-  public List<User> getUsersExceptCurrent(User user) {
+  public List<User> getUsersExceptCurrentSubscriptions(User user, String inputPattern) {
     List<User> users = userRepository.findAll();
     users.remove(user);
+    users.removeAll(user.getSubscriptions());
+
+      users = users.stream()
+        .filter(p -> p.getUsername().contains(inputPattern))
+        .collect(Collectors.toList());
+
     return users;
   }
 
-  public List<User> getFilteredUsersExceptCurrent(User user, String inputPattern) {
-      return  getUsersExceptCurrent(user).stream()
+  public List<User> getUsersExceptCurrentSubscribers(User user, String inputPattern) {
+    List<User> users = userRepository.findAll();
+    users.remove(user);
+    users.removeAll(user.getSubscribers());
+
+      users = users.stream()
         .filter(p -> p.getUsername().contains(inputPattern))
         .collect(Collectors.toList());
+
+    return users;
   }
 
   public void deleteUser(String id) {
@@ -165,13 +195,16 @@ public class UserService implements UserDetailsService {
   }
 
   public User subscribe(User user, String username) {
+    User dbUser = getUser(user);
     User userSub = userRepository.findByUsername(username);
-    if (user.getSubscriptions().contains(userSub)) {
-      user.getSubscriptions().remove(userSub);
+    if (dbUser.getSubscriptions().contains(userSub)) {
+      dbUser.getSubscriptions().remove(userSub);
+      userSub.getSubscribers().remove(dbUser);
+      userRepository.save(userSub);
     } else {
-      user.getSubscriptions().add(userSub);
+      dbUser.getSubscriptions().add(userSub);
     }
-    userRepository.save(user);
-    return user;
+    userRepository.save(dbUser);
+    return dbUser;
   }
 }
