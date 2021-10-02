@@ -27,21 +27,6 @@ public class UserController {
     return userService.getUsers();
   }
 
-  @GetMapping
-//  @PreAuthorize("hasRole('ADMIN')")
-  @RequestMapping("/api/users-other-subscriptions")
-  public List<User> getUsersExceptCurrentSubscriptions(
-    @AuthenticationPrincipal User user, @RequestParam String inputPattern) {
-    return userService.getUsersExceptCurrentSubscriptions(user, inputPattern);
-  }
-
-  @RequestMapping("/api/users-other-subscribers")
-  public List<User> getUsersExceptCurrentSubscribers(
-    @AuthenticationPrincipal User user, @RequestParam String inputPattern) {
-    return userService.getUsersExceptCurrentSubscribers(user, inputPattern);
-  }
-
-
   @DeleteMapping("/api/users/{id}")
   public void deleteUser(
 //    @AuthenticationPrincipal User user,
@@ -73,6 +58,18 @@ public class UserController {
   public Set<User> getSubscriptionsByPattern(
     @PathVariable String user, @RequestParam String inputPattern) {
     return userService.getSubscriptionsByPattern(user, inputPattern);
+  }
+
+  @GetMapping
+  @RequestMapping("/api/subscriptions-count/{user}")
+  public Integer getSubscriptionsCount(@PathVariable String user) {
+    return userService.getSubscriptionsCount(user);
+  }
+
+  @GetMapping
+  @RequestMapping("/api/subscribers-count/{user}")
+  public Integer getSubscribersCount(@PathVariable String user) {
+    return userService.getSubscribersCount(user);
   }
 
 }

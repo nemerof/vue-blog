@@ -137,13 +137,11 @@ public class UserService implements UserDetailsService {
 
   public Set<User> getSubscribersByPattern(String user, String inputPattern) {
     if(inputPattern.equals("")) {
-      Set<User> users =  userRepository.findByUsername(user).getSubscribers();
-      return users;
+      return userRepository.findByUsername(user).getSubscribers();
     }
-    Set<User> users = userRepository.findByUsername(user).getSubscribers().stream()
+    return userRepository.findByUsername(user).getSubscribers().stream()
       .filter(p -> p.getUsername().contains(inputPattern))
       .collect(Collectors.toSet());
-    return users;
   }
 
 //  public Set<User> getSubscriptionsOfAnotherUser(String user) {
@@ -206,5 +204,13 @@ public class UserService implements UserDetailsService {
     }
     userRepository.save(dbUser);
     return dbUser;
+  }
+
+  public Integer getSubscriptionsCount(String user) {
+      return userRepository.findByUsername(user).getSubscriptions().size();
+  }
+
+  public Integer getSubscribersCount(String user) {
+    return userRepository.findByUsername(user).getSubscribers().size();
   }
 }
