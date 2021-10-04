@@ -7,8 +7,6 @@ import com.training.vueblog.objects.User;
 import com.training.vueblog.repositories.TagRepository;
 import com.training.vueblog.repositories.UserRepository;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -43,8 +41,9 @@ public class TagService {
   }
 
   public List<Tag> getPopularTags() {
-    return tagRepository.findAll().stream().sorted(Tag::compareTo)
-      .collect(Collectors.toList());
+    List<Tag> popularTags = tagRepository.findAll();
+    popularTags.sort(Tag::compareTo);
+    return popularTags;
   }
 
   public List<Message> getTagMessages(String tag, Pageable pageable) {

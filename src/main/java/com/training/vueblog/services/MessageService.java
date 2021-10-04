@@ -11,12 +11,9 @@ import com.training.vueblog.repositories.TagRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +63,8 @@ public class MessageService {
     message.setId(UUID.randomUUID().toString());
     message.setCreationDate(LocalDateTime.now());
     message.setUser(user);
+
+    message.setUsername(user.getUsername());
 
     for (Tag tag : message.getTags()) {
       if (tagRepository.getByContent(tag.getContent()) == null) {

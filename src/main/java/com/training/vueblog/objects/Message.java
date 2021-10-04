@@ -31,7 +31,9 @@ public class Message implements Serializable {
     //todo Remake to collections of photos
     private String photoLink;
 
-    @OneToOne
+    private String username;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -56,6 +58,7 @@ public class Message implements Serializable {
     public String toString() {
         return "Message{" +
                 "id='" + id + '\'' +
+                ", username='" + username + '\'' +
                 ", body='" + body + '\'' +
                 ", tags=" + tags +
                 '}';

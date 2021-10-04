@@ -66,10 +66,6 @@ public class Tag implements Serializable, Comparable<Tag> {
 
     @Override
     public int compareTo(Tag t) {
-        if (this.getNumberOfMessages() > t.getNumberOfMessages()) {
-            return 1;
-        } else {
-            return 0;
-        }
+      return Integer.compare(t.getSubscribers().size(), this.getSubscribers().size());
     }
 }
