@@ -62,22 +62,30 @@ public class User implements UserDetails, Serializable {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-      name = "user_subscriptions",
-      joinColumns = {@JoinColumn(name = "channel_id")},
-      inverseJoinColumns = {@JoinColumn(name = "subscriber_id")}
-    )
-    private Set<User> subscribers = new HashSet<>();
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-      name = "user_subscriptions",
-      joinColumns = {@JoinColumn(name = "subscriber_id")},
-      inverseJoinColumns = {@JoinColumn(name = "channel_id")}
-    )
-    private Set<User> subscriptions = new HashSet<>();
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    @JoinTable(
+//      name = "user_subscriptions",
+//      joinColumns = {@JoinColumn(name = "channel_id")},
+//      inverseJoinColumns = {@JoinColumn(name = "subscriber_id")}
+//    )
+//    private Set<User> subscribers = new HashSet<>();
 //
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    @JoinTable(
+//      name = "user_subscriptions",
+//      joinColumns = {@JoinColumn(name = "subscriber_id")},
+//      inverseJoinColumns = {@JoinColumn(name = "channel_id")}
+//    )
+//    private Set<User> subscriptions = new HashSet<>();
+
+    @ElementCollection
+    private Set<String> subscribers = new HashSet<>();
+
+    @ElementCollection
+    private Set<String> subscriptions = new HashSet<>();
+
+
+
 //    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    @JoinTable(
 //      name = "reposts",

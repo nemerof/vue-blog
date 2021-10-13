@@ -4,6 +4,7 @@ import com.training.vueblog.objects.User;
 import com.training.vueblog.services.UserService;
 import java.util.List;
 import java.util.Set;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +24,10 @@ public class UserController {
 
   @GetMapping
   @RequestMapping("/api/users")
-  public List<User> getUsers() {
-    return userService.getUsers();
+  public ResponseEntity<List<User>> getUsers() {
+    List<User> users = userService.getUsers();
+//    return users;
+    return ResponseEntity.ok(users);
   }
 
   @DeleteMapping("/api/users/{id}")
@@ -36,8 +39,8 @@ public class UserController {
 
   @GetMapping
   @RequestMapping("/api/users/{inputPattern}")
-  public List<User> getUsersByPattern(@PathVariable String inputPattern) {
-    return userService.getUsersByPattern(inputPattern);
+  public ResponseEntity<List<User>> getUsersByPattern(@PathVariable String inputPattern) {
+    return ResponseEntity.ok(userService.getUsersByPattern(inputPattern));
   }
 
   @GetMapping
@@ -48,16 +51,16 @@ public class UserController {
 
   @GetMapping
   @RequestMapping("/api/subscribers/{user}")
-  public Set<User> getSubscribersByPattern(
+  public ResponseEntity<Set<User>> getSubscribersByPattern(
     @PathVariable String user, @RequestParam String inputPattern) {
-    return userService.getSubscribersByPattern(user, inputPattern);
+    return ResponseEntity.ok(userService.getSubscribersByPattern(user, inputPattern));
   }
 
   @GetMapping
   @RequestMapping("/api/subscriptions/{user}")
-  public Set<User> getSubscriptionsByPattern(
+  public ResponseEntity<Set<User>> getSubscriptionsByPattern(
     @PathVariable String user, @RequestParam String inputPattern) {
-    return userService.getSubscriptionsByPattern(user, inputPattern);
+    return ResponseEntity.ok(userService.getSubscriptionsByPattern(user, inputPattern));
   }
 
   @GetMapping
