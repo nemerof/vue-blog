@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,8 +17,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,42 +48,25 @@ public class User implements UserDetails, Serializable {
 
     private String photoLink;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "tag_subscribers",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<Tag> subTags;
-
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    @JoinTable(
-//      name = "user_subscriptions",
-//      joinColumns = {@JoinColumn(name = "channel_id")},
-//      inverseJoinColumns = {@JoinColumn(name = "subscriber_id")}
-//    )
-//    private Set<User> subscribers = new HashSet<>();
-//
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    @JoinTable(
-//      name = "user_subscriptions",
-//      joinColumns = {@JoinColumn(name = "subscriber_id")},
-//      inverseJoinColumns = {@JoinColumn(name = "channel_id")}
-//    )
-//    private Set<User> subscriptions = new HashSet<>();
+    @ElementCollection
+ //   @CollectionTable(name="tag_subscribers", joinColumns = {@JoinColumn(name = "user_id")})
+    @Column(name="tag_id")
+    private Set<String> subTags;
 
     @ElementCollection
+ //   @CollectionTable(name="user_subscriptions", joinColumns = {@JoinColumn(name = "channel_id")})
+//    @Column(name="user_subscriptions")
     private Set<String> subscribers = new HashSet<>();
 
     @ElementCollection
+ //   @CollectionTable(name="user_subscriptions", joinColumns = {@JoinColumn(name = "subscriber_id")})
+//    @Column(name="user_subscriptions")
     private Set<String> subscriptions = new HashSet<>();
-
-
 
 //    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    @JoinTable(
@@ -98,8 +80,6 @@ public class User implements UserDetails, Serializable {
     public Collection<? extends GrantedAuthority> getAuthorities() {
       return getRoles();
     }
-
-
 
     @Override
     public boolean isAccountNonExpired() {

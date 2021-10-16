@@ -34,6 +34,7 @@ public class MessageService {
     this.storage = storage;
     this.tagRepository = tagRepository;
   }
+  //todo fill tagContent list
 
   public List<Message> getAllMessages(String filter, Boolean findByTag, Pageable pageable) {
     List<Message> messages;
@@ -41,8 +42,9 @@ public class MessageService {
     if (filter != null && !filter.isEmpty()) {
       if (findByTag) {
         messages = messageRepository.findAll(pageable)
-                  .stream().filter(p -> p.getTags()
-            .stream().anyMatch(t -> t.getContent().contains(filter))).collect(
+                  .stream().filter(p -> p.getTagsContent()
+            .stream().anyMatch(t ->
+            t.contains(filter))).collect(
             Collectors.toList());
       } else {
         messages = messageRepository.findAllByBodyContains(filter, pageable).getContent();
@@ -58,15 +60,15 @@ public class MessageService {
     return messageRepository.findById(id).orElse(null);
   }
 
-  public Message addMessage(User user, Message message, MultipartFile file) throws IOException {
+  public Message addMessage(User user, Message message, List<Tag> messageTags, MultipartFile file) throws IOException {
 
     message.setId(UUID.randomUUID().toString());
     message.setCreationDate(LocalDateTime.now());
-    message.setUser(user);
+    message.setUserId(user.getId());
 
     message.setUsername(user.getUsername());
 
-    for (Tag tag : message.getTags()) {
+    for (Tag tag : messageTags) {
       if (tagRepository.getByContent(tag.getContent()) == null) {
         tag.setNumberOfMessages(1);
       } else {
@@ -75,10 +77,11 @@ public class MessageService {
       }
       tagRepository.save(tag);
     }
-    List<Tag> tags = message.getTags();
     message.setTags(new ArrayList<>());
-    for (Tag tag : tags) {
-      message.getTags().add(tagRepository.getByContent(tag.getContent()));
+    message.setTagsContent(new ArrayList<>());
+    for (Tag tag : messageTags) {
+      message.getTagsContent().add(tag.getContent());
+      message.getTags().add(tag.getId());
     }
 
     if (!file.isEmpty()) {
@@ -95,12 +98,19 @@ public class MessageService {
     return message;
   }
 
+//  private ArrayList<Tag> getMessageTags(List<String> tags) {
+//    ArrayList<Tag> messageTags = new ArrayList<>();
+//    for (String tag : tags) {
+//      messageTags.add(tagRepository.findById(Long.valueOf(tag)).);
+//    }
+//  }
+
   public void deleteMessage(User user, String id) {
     Message message = messageRepository.findById(id).orElse(null);
 
-    if (message != null && user.getId().equals(message.getUser().getId())) {
+    if (message != null && user.getId().equals(message.getUserId())) {
       String photoLink = message.getPhotoLink();
-      List<Tag> tags = message.getTags();
+      List<String> tags = message.getTags();
 
       if (photoLink != null) {
         System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
@@ -109,11 +119,10 @@ public class MessageService {
       }
       messageRepository.delete(message);
 
+      //todo Dele tags
       if (tags.size() > 0) {
-        for (Tag value : tags) {
-          Tag tag = tagRepository.getByContent(value.getContent());
-          if (tag == null)
-            continue;
+        for (String value : tags) {
+          Tag tag = tagRepository.getById(value);
           if (tag.getNumberOfMessages() == 1) {
             tagRepository.delete(tag);
           } else {
@@ -144,6 +153,6 @@ public class MessageService {
   }
 
   public List<Message> getUserMessages(String username, Pageable pageable) {
-    return messageRepository.findAllByUserUsername(username, pageable).getContent();
+    return messageRepository.findAllByUsername(username, pageable).getContent();
   }
 }

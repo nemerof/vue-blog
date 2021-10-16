@@ -8,10 +8,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,26 +29,19 @@ public class Message implements Serializable {
 
     private String username;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+//    @OneToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "user_id", nullable = false)
+    private String userId;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "message_tags",
-            joinColumns = {@JoinColumn(name = "message_id")},
-            inverseJoinColumns = {@JoinColumn(name = "tag_id")}
-    )
-    private List<Tag> tags;
+    @ElementCollection()
+    private List<String> tagsContent;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
+ //   @CollectionTable(name="message_tags", joinColumns = {@JoinColumn(name = "message_id")})
+    private List<String> tags;
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> userLikes;
-
-    public Message(String body, LocalDateTime creationDate, List<Tag> tags) {
-        this.body = body;
-        this.creationDate = creationDate;
-        this.tags = tags;
-    }
 
     @Override
     public String toString() {

@@ -31,12 +31,15 @@ public class TagService {
   public User subToTag(User user, String tagContent) {
     User dbUser = userService.getUser(user);
     Tag tag = tagRepository.getByContent(tagContent);
-    if (dbUser.getSubTags().contains(tag)) {
-      dbUser.getSubTags().remove(tag);
+    if (dbUser.getSubTags().contains(tag.getId())) {
+      dbUser.getSubTags().remove(tag.getId());
+      tag.getSubscribers().remove(dbUser.getId());
     } else {
-      dbUser.getSubTags().add(tag);
+      dbUser.getSubTags().add(tag.getId());
+      tag.getSubscribers().add(dbUser.getId());
     }
     userRepository.save(dbUser);
+    tagRepository.save(tag);
     return dbUser;
   }
 

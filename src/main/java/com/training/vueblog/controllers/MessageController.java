@@ -4,6 +4,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Message;
+import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.services.MessageService;
 import java.io.File;
@@ -78,9 +79,10 @@ public class MessageController {
     @PostMapping("/add")
     public Message addMessage(@AuthenticationPrincipal User user,
                               @RequestPart("text") Message message,
+                              @RequestPart("tags") List<Tag> messageTags,
                               @RequestParam("file") MultipartFile file) throws IOException {
 
-      return messageService.addMessage(user, message, file);
+      return messageService.addMessage(user, message, messageTags, file);
     }
 
     @DeleteMapping("/{id}")
