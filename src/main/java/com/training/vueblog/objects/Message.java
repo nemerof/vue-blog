@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,6 +22,7 @@ public class Message implements Serializable {
     @Id
     private String id;
 
+    @Column(length=500)
     private String body;
     private LocalDateTime creationDate;
 

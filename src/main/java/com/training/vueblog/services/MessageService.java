@@ -34,7 +34,6 @@ public class MessageService {
     this.storage = storage;
     this.tagRepository = tagRepository;
   }
-  //todo fill tagContent list
 
   public List<Message> getAllMessages(String filter, Boolean findByTag, Pageable pageable) {
     List<Message> messages;
@@ -119,7 +118,6 @@ public class MessageService {
       }
       messageRepository.delete(message);
 
-      //todo Dele tags
       if (tags.size() > 0) {
         for (String value : tags) {
           Tag tag = tagRepository.getById(value);

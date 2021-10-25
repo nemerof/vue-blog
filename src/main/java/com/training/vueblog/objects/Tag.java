@@ -22,7 +22,7 @@ public class Tag implements Serializable, Comparable<Tag> {
     @Id
     private String id;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 50)
     private String content;
 
     private int numberOfMessages;
