@@ -5,8 +5,6 @@ import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.services.TagService;
 import java.util.List;
-
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -36,6 +34,11 @@ public class TagController {
   @GetMapping("/popular")
   public List<Tag> getPopularTags() {
     return tagService.getPopularTags();
+  }
+
+  @GetMapping("/popular/{inputPattern}")
+  public List<Tag> getPopularTagsByPattern(@PathVariable String inputPattern) {
+    return tagService.getPopularTagsByPattern(inputPattern);
   }
 
   @GetMapping("/{tag}")

@@ -49,6 +49,12 @@ public class TagService {
     return popularTags;
   }
 
+  public List<Tag> getPopularTagsByPattern(String inputPattern) {
+    List<Tag> popularTags = tagRepository.getAllByContentContains(inputPattern);
+    popularTags.sort(Tag::compareTo);
+    return popularTags;
+  }
+
   public List<Message> getTagMessages(String tag, Pageable pageable) {
     return messageService.getAllMessages(tag, true, pageable);
   }

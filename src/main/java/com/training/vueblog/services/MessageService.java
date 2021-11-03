@@ -118,17 +118,14 @@ public class MessageService {
       }
       messageRepository.delete(message);
 
-      if (tags.size() > 0) {
-        for (String value : tags) {
-          Tag tag = tagRepository.getById(value);
-          if (tag.getNumberOfMessages() == 1) {
-            tagRepository.delete(tag);
-          } else {
-            tag.setNumberOfMessages(tag.getNumberOfMessages() - 1);
-            tagRepository.save(tag);
-          }
-        }
-      }
+//      if (tags.size() > 0) {
+//        for (String value : tags) {
+//          Tag tag = tagRepository.getById(value);
+//
+//            tag.setNumberOfMessages(tag.getNumberOfMessages() - 1);
+//            tagRepository.save(tag);
+//        }
+//      }
     }
   }
 
