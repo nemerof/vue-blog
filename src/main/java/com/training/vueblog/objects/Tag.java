@@ -6,9 +6,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,16 +30,13 @@ public class Tag implements Serializable, Comparable<Tag> {
 
     private int numberOfMessages;
 
-//  @ManyToMany(fetch = FetchType.EAGER)
-//  @JoinTable(
-//    name = "tag_subscribers",
-//    joinColumns = {@JoinColumn(name = "tag_id")},
-//    inverseJoinColumns = {@JoinColumn(name = "user_id")}
-//  )
-
-    @ElementCollection()
- //   @CollectionTable(name = "tag_subscribers", joinColumns = @JoinColumn(name = "tag_id"))
-    private Set<String> subscribers = new HashSet<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+      name = "tag_subscribers",
+      joinColumns = @JoinColumn(name = "tag_id"),
+      inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> subscribers = new HashSet<>();
 
     public Tag(String tag) {
         this.id = UUID.randomUUID().toString();

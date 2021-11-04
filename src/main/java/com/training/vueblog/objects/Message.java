@@ -9,6 +9,10 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,27 +33,27 @@ public class Message implements Serializable {
     //todo Remake to collections of photos
     private String photoLink;
 
-    private String username;
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-//    @OneToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "user_id", nullable = false)
-    private String userId;
-
-    @ElementCollection()
-    private List<String> tagsContent;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+      name = "message_tags",
+      joinColumns = {@JoinColumn(name = "message_id")},
+      inverseJoinColumns = {@JoinColumn(name = "tag_id")}
+    )
+    private List<Tag> tags;
 
     @ElementCollection(fetch = FetchType.EAGER)
- //   @CollectionTable(name="message_tags", joinColumns = {@JoinColumn(name = "message_id")})
-    private List<String> tags;
-
-    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name="user_id")
     private Set<String> userLikes;
 
     @Override
     public String toString() {
         return "Message{" +
                 "id='" + id + '\'' +
-                ", username='" + username + '\'' +
+                ", username='" + user.getUsername() + '\'' +
                 ", body='" + body + '\'' +
                 ", tags=" + tags +
                 '}';

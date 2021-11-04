@@ -1,10 +1,10 @@
 package com.training.vueblog.controllers;
 
 import com.training.vueblog.objects.User;
+import com.training.vueblog.objects.dto.UserDTO;
 import com.training.vueblog.services.UserService;
 import java.util.List;
 import java.util.Set;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,10 +24,9 @@ public class UserController {
 
   @GetMapping
   @RequestMapping("/api/users")
-  public ResponseEntity<List<User>> getUsers() {
-    List<User> users = userService.getUsers();
-//    return users;
-    return ResponseEntity.ok(users);
+  public List<UserDTO> getUsers() {
+    //    return users;
+    return userService.getUsers();
   }
 
   @DeleteMapping("/api/users/{id}")
@@ -39,8 +38,8 @@ public class UserController {
 
   @GetMapping
   @RequestMapping("/api/users/{inputPattern}")
-  public ResponseEntity<List<User>> getUsersByPattern(@PathVariable String inputPattern) {
-    return ResponseEntity.ok(userService.getUsersByPattern(inputPattern));
+  public List<UserDTO> getUsersByPattern(@PathVariable String inputPattern) {
+    return userService.getUsersByPattern(inputPattern);
   }
 
   @GetMapping
@@ -51,16 +50,16 @@ public class UserController {
 
   @GetMapping
   @RequestMapping("/api/subscribers/{user}")
-  public ResponseEntity<Set<User>> getSubscribersByPattern(
+  public Set<UserDTO> getSubscribersByPattern(
     @PathVariable String user, @RequestParam String inputPattern) {
-    return ResponseEntity.ok(userService.getSubscribersByPattern(user, inputPattern));
+    return userService.getSubscribersByPattern(user, inputPattern);
   }
 
   @GetMapping
   @RequestMapping("/api/subscriptions/{user}")
-  public ResponseEntity<Set<User>> getSubscriptionsByPattern(
+  public Set<UserDTO> getSubscriptionsByPattern(
     @PathVariable String user, @RequestParam String inputPattern) {
-    return ResponseEntity.ok(userService.getSubscriptionsByPattern(user, inputPattern));
+    return userService.getSubscriptionsByPattern(user, inputPattern);
   }
 
   @GetMapping

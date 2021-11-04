@@ -6,6 +6,7 @@ import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
+import com.training.vueblog.objects.dto.MessageDTO;
 import com.training.vueblog.services.MessageService;
 import java.io.File;
 import java.io.IOException;
@@ -56,22 +57,22 @@ public class MessageController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Message>> getAllMessages(@RequestParam(required = false) String filter,
+    public List<MessageDTO> getAllMessages(@RequestParam(required = false) String filter,
       @RequestParam(name = "bytag", required = false) Boolean findByTag,
       @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
 
-      return ResponseEntity.ok(messageService.getAllMessages(filter, findByTag, pageable));
+      return messageService.getAllMessages(filter, findByTag, pageable);
     }
 
     @GetMapping("/user/{username}")
-    public ResponseEntity<List<Message>> getUserMessages(@PathVariable String username,
+    public List<MessageDTO> getUserMessages(@PathVariable String username,
       @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
 
-      return ResponseEntity.ok(messageService.getUserMessages(username, pageable));
+      return messageService.getUserMessages(username, pageable);
     }
 
     @GetMapping("/{id}")
-    public Message getMessage(@PathVariable String id) {
+    public MessageDTO getMessage(@PathVariable String id) {
         return messageService.getMessage(id);
     }
 

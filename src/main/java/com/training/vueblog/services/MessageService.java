@@ -6,6 +6,7 @@ import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
+import com.training.vueblog.objects.dto.MessageDTO;
 import com.training.vueblog.repositories.MessageRepository;
 import com.training.vueblog.repositories.TagRepository;
 import java.io.IOException;
@@ -35,15 +36,15 @@ public class MessageService {
     this.tagRepository = tagRepository;
   }
 
-  public List<Message> getAllMessages(String filter, Boolean findByTag, Pageable pageable) {
+  public List<MessageDTO> getAllMessages(String filter, Boolean findByTag, Pageable pageable) {
     List<Message> messages;
 
     if (filter != null && !filter.isEmpty()) {
       if (findByTag) {
         messages = messageRepository.findAll(pageable)
-                  .stream().filter(p -> p.getTagsContent()
+          .stream().filter(p -> p.getTags()
             .stream().anyMatch(t ->
-            t.contains(filter))).collect(
+              t.getContent().contains(filter))).collect(
             Collectors.toList());
       } else {
         messages = messageRepository.findAllByBodyContains(filter, pageable).getContent();
@@ -51,21 +52,31 @@ public class MessageService {
     } else {
       messages = messageRepository.findAll(pageable).getContent();
     }
-    System.out.println(messages.size() + " " + pageable.getPageNumber());
-    return messages;
+
+    return getMessageDTOList(messages);
   }
 
-  public Message getMessage(String id) {
-    return messageRepository.findById(id).orElse(null);
+  public List<MessageDTO> getMessageDTOList(List<Message> messages) {
+    List<MessageDTO> messageDTOList = new ArrayList<>();
+
+    for (Message m : messages) {
+      messageDTOList.add(new MessageDTO(m));
+    }
+    return messageDTOList;
+  }
+
+  public MessageDTO getMessage(String id) {
+    Message message = messageRepository.findById(id).orElse(null);
+    if(message != null) {
+      return new MessageDTO(message);
+    } return null;
   }
 
   public Message addMessage(User user, Message message, List<Tag> messageTags, MultipartFile file) throws IOException {
 
     message.setId(UUID.randomUUID().toString());
     message.setCreationDate(LocalDateTime.now());
-    message.setUserId(user.getId());
-
-    message.setUsername(user.getUsername());
+    message.setUser(user);
 
     for (Tag tag : messageTags) {
       if (tagRepository.getByContent(tag.getContent()) == null) {
@@ -77,11 +88,7 @@ public class MessageService {
       tagRepository.save(tag);
     }
     message.setTags(new ArrayList<>());
-    message.setTagsContent(new ArrayList<>());
-    for (Tag tag : messageTags) {
-      message.getTagsContent().add(tag.getContent());
-      message.getTags().add(tag.getId());
-    }
+    message.setTags(messageTags);
 
     if (!file.isEmpty()) {
       String link = message.getPhotoLink();
@@ -97,19 +104,12 @@ public class MessageService {
     return message;
   }
 
-//  private ArrayList<Tag> getMessageTags(List<String> tags) {
-//    ArrayList<Tag> messageTags = new ArrayList<>();
-//    for (String tag : tags) {
-//      messageTags.add(tagRepository.findById(Long.valueOf(tag)).);
-//    }
-//  }
-
   public void deleteMessage(User user, String id) {
     Message message = messageRepository.findById(id).orElse(null);
 
-    if (message != null && user.getId().equals(message.getUserId())) {
+    if (message != null && user.getId().equals(message.getUser().getId())) {
       String photoLink = message.getPhotoLink();
-      List<String> tags = message.getTags();
+//      List<String> tags = message.getTags();
 
       if (photoLink != null) {
         System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
@@ -147,7 +147,8 @@ public class MessageService {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  public List<Message> getUserMessages(String username, Pageable pageable) {
-    return messageRepository.findAllByUsername(username, pageable).getContent();
+  public List<MessageDTO> getUserMessages(String username, Pageable pageable) {
+    List<Message> messages = messageRepository.findAllByUserUsername(username, pageable).getContent();
+    return getMessageDTOList(messages);
   }
 }

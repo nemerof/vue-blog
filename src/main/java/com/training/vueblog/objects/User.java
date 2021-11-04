@@ -17,6 +17,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,30 +53,33 @@ public class User implements UserDetails, Serializable {
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
+    @Column(name="role")
     private Set<Role> roles;
 
-    @ElementCollection
- //   @CollectionTable(name="tag_subscribers", joinColumns = {@JoinColumn(name = "user_id")})
-    @Column(name="tag_id")
-    private Set<String> subTags;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+      name = "tag_subscribers",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> subTags;
 
-    @ElementCollection
- //   @CollectionTable(name="user_subscriptions", joinColumns = {@JoinColumn(name = "channel_id")})
-//    @Column(name="user_subscriptions")
-    private Set<String> subscribers = new HashSet<>();
 
-    @ElementCollection
- //   @CollectionTable(name="user_subscriptions", joinColumns = {@JoinColumn(name = "subscriber_id")})
-//    @Column(name="user_subscriptions")
-    private Set<String> subscriptions = new HashSet<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+      name = "user_subscriptions",
+      joinColumns = {@JoinColumn(name = "subscription_id")},
+      inverseJoinColumns = {@JoinColumn(name = "subscriber_id")}
+    )
+    private Set<User> subscribers = new HashSet<>();
 
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JoinTable(
-//      name = "reposts",
-//      joinColumns = {@JoinColumn(name = "user_id")},
-//      inverseJoinColumns = {@JoinColumn(name = "message_id")}
-//    )
-//    private Set<Message> reposts = new HashSet<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+      name = "user_subscriptions",
+      joinColumns = {@JoinColumn(name = "subscriber_id")},
+      inverseJoinColumns = {@JoinColumn(name = "subscription_id")}
+    )
+    private Set<User> subscriptions = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -117,8 +122,6 @@ public class User implements UserDetails, Serializable {
     return  isActive() == user.isActive() && getId().equals(user.getId()) &&
       Objects.equals(getUsername(), user.getUsername()) &&
       Objects.equals(getRoles(), user.getRoles())
-//                Objects.equals(getSubscribers(), user.getSubscribers()) &&
-//                Objects.equals(getSubscriptions(), user.getSubscriptions())
       ;
   }
 
