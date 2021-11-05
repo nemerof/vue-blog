@@ -21,6 +21,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +30,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "usr")
 @Getter
 @Setter
+@NoArgsConstructor
 @JsonIdentityInfo(
   generator = ObjectIdGenerators.PropertyGenerator.class,
   property = "id")
@@ -81,7 +83,19 @@ public class User implements UserDetails, Serializable {
     )
     private Set<User> subscriptions = new HashSet<>();
 
-    @Override
+    //todo add validation for constructor
+    public User(String id, String username, String password, LocalDateTime creationDate,
+      LocalDateTime lastVisit, boolean active, Set<Role> roles) {
+      this.id = id;
+      this.username = username;
+      this.password = password;
+      this.creationDate = creationDate;
+      this.lastVisit = lastVisit;
+      this.active = active;
+      this.roles = roles;
+    }
+
+  @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
       return getRoles();
     }

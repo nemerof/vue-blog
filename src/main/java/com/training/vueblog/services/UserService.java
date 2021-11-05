@@ -110,7 +110,7 @@ public class UserService implements UserDetailsService {
           String userId = resultSet.getString("user_id");
           String tagId = resultSet.getString("tag_id");
           if (userId.equals(user.getId()))
-            tags.add(tagRepository.getById(tagId));
+            tags.add(tagRepository.findById(tagId).get());
         });
         Set<User> subscriptions = new HashSet<>();
         jdbcTemplate.query("SELECT * FROM user_subscriptions", resultSet -> {

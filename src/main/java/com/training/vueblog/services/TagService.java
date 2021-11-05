@@ -59,7 +59,7 @@ public class TagService {
   }
 
   public List<TagDTO> getPopularTagsByPattern(String inputPattern) {
-    List<Tag> popularTags = tagRepository.getAllByContentContains(inputPattern);
+    List<Tag> popularTags = tagRepository.findAllByContentContains(inputPattern);
     popularTags.sort(Tag::compareTo);
     return getTagDTOList(popularTags);
   }

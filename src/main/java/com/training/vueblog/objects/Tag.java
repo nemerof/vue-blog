@@ -38,9 +38,14 @@ public class Tag implements Serializable, Comparable<Tag> {
     )
     private Set<User> subscribers = new HashSet<>();
 
-    public Tag(String tag) {
-        this.id = UUID.randomUUID().toString();
-        this.content = tag;
+  public Tag(String tag) {
+    this.id = UUID.randomUUID().toString();
+    this.content = tag;
+  }
+
+    public Tag(String id, String content) {
+      this.id = id;
+      this.content = content;
     }
 
     @Override

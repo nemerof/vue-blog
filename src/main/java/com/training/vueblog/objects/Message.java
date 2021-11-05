@@ -3,6 +3,7 @@ package com.training.vueblog.objects;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -49,6 +50,23 @@ public class Message implements Serializable {
     @Column(name="user_id")
     private Set<String> userLikes;
 
+    public Message(String id, String body, LocalDateTime creationDate, String photoLink,
+      User user, List<Tag> tags) {
+      this.id = id;
+      this.body = body;
+      this.creationDate = creationDate;
+      this.photoLink = photoLink;
+      this.user = user;
+      this.tags = tags;
+    }
+
+    public Message(String id, String body, LocalDateTime creationDate, User user) {
+      this.id = id;
+      this.body = body;
+      this.creationDate = creationDate;
+      this.user = user;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
@@ -58,4 +76,26 @@ public class Message implements Serializable {
                 ", tags=" + tags +
                 '}';
     }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Message)) {
+      return false;
+    }
+    Message message = (Message) o;
+    return getId().equals(message.getId()) && Objects.equals(getBody(), message.getBody())
+      && Objects.equals(getCreationDate(), message.getCreationDate())
+      && Objects.equals(getPhotoLink(), message.getPhotoLink())
+      && Objects.equals(getUser(), message.getUser()) && Objects.equals(
+      getTags(), message.getTags()) && Objects.equals(getUserLikes(),
+      message.getUserLikes());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getId());
+  }
 }
