@@ -1,5 +1,7 @@
 package com.training.vueblog.repositories;
 
+import static com.training.vueblog.data.TagTestData.TAG1;
+import static com.training.vueblog.data.TagTestData.TAG2;
 import static com.training.vueblog.data.UserTestData.ADMIN;
 import static com.training.vueblog.data.UserTestData.USER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,6 +11,7 @@ import com.training.vueblog.objects.User;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +20,24 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-//@AutoConfigureTestDatabase(replace = Replace.AUTO_CONFIGURED)
 public class UserRepositoryTest {
 
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+  private TagRepository tagRepository;
+
   @AfterEach
   public void setUp() {
     userRepository.deleteAll();
+    tagRepository.deleteAll();
+  }
+
+  @BeforeEach
+  public void saveTags() {
+    tagRepository.save(TAG1);
+    tagRepository.save(TAG2);
   }
 
   @Test
@@ -55,7 +67,7 @@ public class UserRepositoryTest {
     userRepository.save(USER);
     userRepository.save(ADMIN);
     List<User> usersFromDb = userRepository.findAllByUsernameContains(USER.getUsername());
-    assertEquals(Arrays.asList(USER), usersFromDb);
+    assertEquals(List.of(USER), usersFromDb);
   }
 
   @Test

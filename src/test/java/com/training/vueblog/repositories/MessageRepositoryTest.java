@@ -73,7 +73,7 @@ public class MessageRepositoryTest {
     messageRepository.save(MESSAGE2);
     List<Message> messagesFromDb = messageRepository.findAllByBodyContains("Body 1", PageRequest.of(0, 5)).
       stream().collect(Collectors.toList());
-    assertEquals(Arrays.asList(MESSAGE1), messagesFromDb);
+    assertEquals(List.of(MESSAGE1), messagesFromDb);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class MessageRepositoryTest {
     messageRepository.save(MESSAGE2);
     List<Message> messagesFromDb = messageRepository.findAllByUserUsername("user", PageRequest.of(0, 5)).
       stream().collect(Collectors.toList());
-    assertEquals(Arrays.asList(MESSAGE2), messagesFromDb);
+    assertEquals(List.of(MESSAGE2), messagesFromDb);
   }
 
   @Test

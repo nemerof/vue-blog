@@ -83,7 +83,7 @@ public class User implements UserDetails, Serializable {
     )
     private Set<User> subscriptions = new HashSet<>();
 
-    //todo add validation for constructor
+      //todo add validation for constructor
     public User(String id, String username, String password, LocalDateTime creationDate,
       LocalDateTime lastVisit, boolean active, Set<Role> roles) {
       this.id = id;
@@ -95,7 +95,7 @@ public class User implements UserDetails, Serializable {
       this.roles = roles;
     }
 
-  @Override
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
       return getRoles();
     }

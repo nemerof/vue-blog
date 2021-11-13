@@ -86,7 +86,7 @@ public class UserService implements UserDetailsService {
       return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    private Set<UserDTO> getUserSubscriptions(User user) {
+    public Set<UserDTO> getUserSubscriptions(User user) {
       Set<UserDTO> userSubscriptions = new HashSet<>();
       for (User u : user.getSubscriptions()) {
         userSubscriptions.add(new UserDTO(u));
@@ -94,7 +94,7 @@ public class UserService implements UserDetailsService {
       return userSubscriptions;
     }
 
-    private Set<UserDTO> getUserSubscribers(User user) {
+    public Set<UserDTO> getUserSubscribers(User user) {
       Set<UserDTO> userSubscribers = new HashSet<>();
       for (User u : user.getSubscribers()) {
         userSubscribers.add(new UserDTO(u));
@@ -104,7 +104,6 @@ public class UserService implements UserDetailsService {
 
     public User getUser(User user) {
       if (user != null) {
-        System.out.println(user.getPassword());
         Set<Tag> tags = new HashSet<>();
         jdbcTemplate.query("SELECT * FROM tag_subscribers", resultSet -> {
           String userId = resultSet.getString("user_id");
@@ -125,7 +124,7 @@ public class UserService implements UserDetailsService {
         System.out.println("No principal");
       return user;
     }
-
+//////////////////////////
     public List<UserDTO> getUsers() {
       return getUserDTOList(userRepository.findAll());
     }
@@ -147,7 +146,7 @@ public class UserService implements UserDetailsService {
       }
       return userDTOSet;
     }
-
+/////////////////////////
     public List<UserDTO> getUsersByPattern(String inputPattern) {
       return getUserDTOList(userRepository.findAllByUsernameContains(inputPattern));
     }

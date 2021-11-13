@@ -20,6 +20,7 @@ public class TagService {
   private final UserRepository userRepository;
 
   private final MessageService messageService;
+
   private final UserService userService;
 
   public TagService(TagRepository tagRepository,
@@ -60,7 +61,7 @@ public class TagService {
 
   public List<TagDTO> getPopularTagsByPattern(String inputPattern) {
     List<Tag> popularTags = tagRepository.findAllByContentContains(inputPattern);
-    popularTags.sort(Tag::compareTo);
+    if(popularTags.size() > 1) popularTags.sort(Tag::compareTo);
     return getTagDTOList(popularTags);
   }
 

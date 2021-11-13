@@ -6,9 +6,11 @@ import com.training.vueblog.objects.User;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode
 public class UserDTO {
 
   private final String id;
@@ -35,9 +37,11 @@ public class UserDTO {
     photoLink = user.getPhotoLink();
     roles = user.getRoles();
 
-    Set<String> st = new HashSet<>();
-    for(Tag t : user.getSubTags()) st.add(t.getId());
-
-    subTags = st;
+    if(user.getSubTags() != null) {
+      Set<String> st = new HashSet<>();
+      for (Tag t : user.getSubTags())
+        st.add(t.getId());
+      subTags = st;
+    } else subTags = null;
   }
 }

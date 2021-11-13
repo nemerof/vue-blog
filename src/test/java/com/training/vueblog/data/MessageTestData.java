@@ -8,6 +8,7 @@ import static com.training.vueblog.data.UserTestData.USER;
 import com.training.vueblog.objects.Message;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 public class MessageTestData {
 
@@ -20,6 +21,7 @@ public class MessageTestData {
 
   public static final Message MESSAGE2 = new Message(
     "cb8c6676-7392-4bc4-9085-cd435ce29c4b", "Body 2",
-    LocalDateTime.of(2021,11,9,16,34,13,437236), ADMIN
+    LocalDateTime.of(2021,11,9,16,34,13,437236),
+    ADMIN, List.of(TAG2)
   );
 }

@@ -54,7 +54,7 @@ public class TagRepositoryTest {
     tagRepository.save(TAG1);
     tagRepository.save(TAG2);
     List<Tag> tagsFromDb = tagRepository.findAllByContentContains(TAG1.getContent());
-    assertEquals(Arrays.asList(TAG1), tagsFromDb);
+    assertEquals(List.of(TAG1), tagsFromDb);
   }
 
   @Test

@@ -1,9 +1,11 @@
 package com.training.vueblog.objects.dto;
 
 import com.training.vueblog.objects.Tag;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode
 public class TagDTO {
 
   private final String id;

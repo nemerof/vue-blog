@@ -60,14 +60,16 @@ public class Message implements Serializable {
       this.tags = tags;
     }
 
-    public Message(String id, String body, LocalDateTime creationDate, User user) {
+    public Message(String id, String body, LocalDateTime creationDate, User user, List<Tag> tags) {
       this.id = id;
       this.body = body;
       this.creationDate = creationDate;
       this.user = user;
+      this.tags = tags;
     }
 
-    @Override
+
+  @Override
     public String toString() {
         return "Message{" +
                 "id='" + id + '\'' +

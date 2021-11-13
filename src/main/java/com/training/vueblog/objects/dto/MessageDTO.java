@@ -6,9 +6,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode
 public class MessageDTO {
 
   private final String id;
@@ -37,10 +39,12 @@ public class MessageDTO {
     photoLink = message.getPhotoLink();
     username = message.getUser().getUsername();
 
-    List<String> tc = new ArrayList<>();
-    for(Tag t : message.getTags()) tc.add(t.getContent());
-
-    tagsContent = tc;
+    if(message.getTags() != null) {
+      List<String> tc = new ArrayList<>();
+      for (Tag t : message.getTags())
+        tc.add(t.getContent());
+      tagsContent = tc;
+    } else tagsContent = null;
     userLikes = message.getUserLikes();
   }
 }
