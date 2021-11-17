@@ -2,8 +2,11 @@ package com.training.vueblog.services;
 
 import static com.training.vueblog.data.MessageTestData.MESSAGE1;
 import static com.training.vueblog.data.MessageTestData.MESSAGE2;
+import static com.training.vueblog.data.TagTestData.TAG1;
+import static com.training.vueblog.data.TagTestData.TAG2;
 import static com.training.vueblog.data.UserTestData.USER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,6 +16,9 @@ import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.dto.MessageDTO;
 import com.training.vueblog.repositories.MessageRepository;
 import com.training.vueblog.repositories.TagRepository;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +34,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceTest {
@@ -85,17 +92,33 @@ public class MessageServiceTest {
   }
 
   @Test
-  void getMessage() {
+  void getMessageTest() {
     when(messageRepository.findById(MESSAGE1.getId())).thenReturn(Optional.of(MESSAGE1));
     MessageDTO messageFromService = messageService.getMessage(MESSAGE1.getId());
     assertEquals(new MessageDTO(MESSAGE1), messageFromService);
     verify(messageRepository, times(1)).findById(MESSAGE1.getId());
   }
 
-//  @Test
-//  void addMessage() {
-//
-//  }
+  @Test
+  void addMessageNoTagsTest() throws IOException {
+    when(messageRepository.save(any())).thenReturn(MESSAGE1);
+    Message message = messageService.addMessage(USER, MESSAGE1, new ArrayList<>(),
+      new MockMultipartFile("test.jpg", new FileInputStream(
+      "/home/friday58/IdeaProjects/vue-blog/src/test/java/resources/test.jpg")));
+    assertEquals(MESSAGE1, message);
+    verify(messageRepository, times(1)).save(any());
+  }
+
+  @Test
+  void addMessageTest() throws IOException {
+    when(messageRepository.save(any())).thenReturn(MESSAGE1);
+    Message message = messageService.addMessage(USER, MESSAGE1, Arrays.asList(TAG1, TAG2),
+      new MockMultipartFile("test.jpg", new FileInputStream(
+        "/home/friday58/IdeaProjects/vue-blog/src/test/java/resources/test.jpg")));
+    assertEquals(MESSAGE1, message);
+    assertEquals(MESSAGE1.getTags(), message.getTags());
+    verify(messageRepository, times(1)).save(any());
+  }
 
   @Test
   void deleteMessage() {

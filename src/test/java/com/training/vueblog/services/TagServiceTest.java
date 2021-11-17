@@ -7,11 +7,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.dto.TagDTO;
-import com.training.vueblog.repositories.MessageRepository;
 import com.training.vueblog.repositories.TagRepository;
-import com.training.vueblog.repositories.UserRepository;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -25,23 +22,8 @@ public class TagServiceTest {
 
   @Mock
   private TagRepository tagRepository;
-  @Mock
-  private MessageRepository messageRepository;
-  @Mock
-  private UserRepository userRepository;
-  @Mock
-  private MessageService messageService;
-  @Mock
-  private UserService userService;
-  @Mock
-  private Storage storage;
   @InjectMocks
   private TagService tagService;
-
-//  @Test
-//  void subToTagTest() {
-//
-//  }
 
   @Test
   void getPopularTagsTest() {

@@ -5,14 +5,18 @@ import static com.training.vueblog.data.TagTestData.TAG2;
 import static com.training.vueblog.data.UserTestData.ADMIN;
 import static com.training.vueblog.data.UserTestData.USER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Storage;
+import com.training.vueblog.objects.User;
 import com.training.vueblog.objects.dto.UserDTO;
 import com.training.vueblog.repositories.TagRepository;
 import com.training.vueblog.repositories.UserRepository;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +28,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,9 +77,37 @@ public class UserServiceTest {
     TAG2.setSubscribers(null);
   }
 
-//  loadByUsername
-//  registerUser
-//  getUser
+
+  @Test
+  void loadByUsername() {
+    when(userRepository.getByUsername(USER.getUsername())).thenReturn(Optional.of(USER));
+    assertEquals(USER, userService.loadUserByUsername(USER.getUsername()));
+    verify(userRepository, times(1)).getByUsername(USER.getUsername());
+  }
+
+  @Test
+  void registerUserSuccessfulTest() throws IOException {
+    USER.setPhotoLink("test.jpg");
+    when(userRepository.getByUsername(USER.getUsername())).thenReturn(Optional.empty());
+    when(userRepository.save(any())).thenReturn(USER);
+    ResponseEntity<User> responseFromService = userService.registerUser(USER,
+      new MockMultipartFile("test.jpg", new FileInputStream(
+        "/home/friday58/IdeaProjects/vue-blog/src/test/java/resources/test.jpg")));
+    assertEquals(USER, responseFromService.getBody());
+    assertEquals(HttpStatus.OK, responseFromService.getStatusCode());
+    verify(userRepository, times(1)).getByUsername(USER.getUsername());
+    verify(userRepository,times(1)).save(any());
+  }
+
+  @Test
+  void registerUserUnsuccessfulTest() throws IOException {
+    when(userRepository.getByUsername(USER.getUsername())).thenReturn(Optional.of(USER));
+    ResponseEntity<User> responseFromService = userService.registerUser(USER,
+      new MockMultipartFile("test.jpg", new FileInputStream(
+        "/home/friday58/IdeaProjects/vue-blog/src/test/java/resources/test.jpg")));
+    assertEquals(HttpStatus.ALREADY_REPORTED, responseFromService.getStatusCode());
+    verify(userRepository, times(1)).getByUsername(USER.getUsername());
+  }
 
   @Test
   void getUserDTOListTest() {
@@ -139,24 +174,6 @@ public class UserServiceTest {
     verify(userRepository, times(1)).delete(USER);
   }
 
-//  @Test
-//  void subscribeTest() {
-//    when(userRepository.findByUsername(USER.getUsername())).thenReturn(USER);
-//
-//
-//
-//    verify(userRepository, times(1)).findByUsername(USER.getUsername());
-//  }
-//
-//  @Test
-//  void unsubscribeTest() {
-//    when(userRepository.findByUsername(USER.getUsername())).thenReturn(USER);
-//
-//
-//
-//    verify(userRepository, times(1)).findByUsername(USER.getUsername());
-//  }
-
   @Test
   void getSubscriptionsCountTest() {
     when(userRepository.findByUsername(USER.getUsername())).thenReturn(USER);
@@ -174,16 +191,4 @@ public class UserServiceTest {
     assertEquals(actualNumber, resultFromService);
     verify(userRepository, times(1)).findByUsername(USER.getUsername());
   }
-
-//
-//  @Test
-//  void givenProductToAddShouldReturnAddedProduct() throws IOException {
-//    when(userRepository.save(any())).thenReturn(USER);
-//    userService.registerUser(USER,
-//      new MockMultipartFile("deleteme.txt",
-//        new FileInputStream(new File("/home/friday58/deleteme.txt"))));
-//    verify(userRepository,times(1)).save(any());
-//  }
-
-
 }

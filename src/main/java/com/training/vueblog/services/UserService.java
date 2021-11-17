@@ -124,7 +124,7 @@ public class UserService implements UserDetailsService {
         System.out.println("No principal");
       return user;
     }
-//////////////////////////
+
     public List<UserDTO> getUsers() {
       return getUserDTOList(userRepository.findAll());
     }
@@ -190,8 +190,6 @@ public class UserService implements UserDetailsService {
       User userSub = userRepository.findByUsername(username);
       if (dbUser.getSubscriptions().contains(userSub)) {
         dbUser.getSubscriptions().remove(userSub);
-        userSub.getSubscribers().remove(dbUser);
-        userRepository.save(userSub);
       } else {
         dbUser.getSubscriptions().add(userSub);
       }
