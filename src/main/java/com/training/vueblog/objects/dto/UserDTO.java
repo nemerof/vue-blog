@@ -1,5 +1,9 @@
 package com.training.vueblog.objects.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.training.vueblog.objects.Role;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
@@ -15,6 +19,8 @@ public class UserDTO {
 
   private final String id;
   private final String username;
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   private final LocalDateTime lastVisit;
   private final String photoLink;
   private final Set<Role> roles;

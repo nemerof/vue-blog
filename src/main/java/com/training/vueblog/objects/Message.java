@@ -1,5 +1,9 @@
 package com.training.vueblog.objects;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +33,8 @@ public class Message implements Serializable {
 
     @Column(length=500)
     private String body;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime creationDate;
 
     //todo Remake to collections of photos
@@ -73,7 +79,6 @@ public class Message implements Serializable {
     public String toString() {
         return "Message{" +
                 "id='" + id + '\'' +
-                ", username='" + user.getUsername() + '\'' +
                 ", body='" + body + '\'' +
                 ", tags=" + tags +
                 '}';

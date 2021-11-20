@@ -60,7 +60,6 @@ public class MessageController {
     public List<MessageDTO> getAllMessages(@RequestParam(required = false) String filter,
       @RequestParam(name = "bytag", required = false) Boolean findByTag,
       @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
-
       return messageService.getAllMessages(filter, findByTag, pageable);
     }
 
