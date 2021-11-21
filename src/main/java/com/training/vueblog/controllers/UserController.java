@@ -9,7 +9,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,54 +21,45 @@ public class UserController {
     this.userService = userService;
   }
 
-  @GetMapping
-  @RequestMapping("/api/users")
+  @GetMapping("/api/users")
   public List<UserDTO> getUsers() {
-    //    return users;
     return userService.getUsers();
   }
 
   @DeleteMapping("/api/users/{id}")
-  public void deleteUser(
-//    @AuthenticationPrincipal User user,
+  public void deleteUser(@AuthenticationPrincipal User user,
     @PathVariable String id) {
-    userService.deleteUser(id);
+    userService.deleteUser(id, user);
   }
 
-  @GetMapping
-  @RequestMapping("/api/users/{inputPattern}")
+  @GetMapping("/api/users/{inputPattern}")
   public List<UserDTO> getUsersByPattern(@PathVariable String inputPattern) {
     return userService.getUsersByPattern(inputPattern);
   }
 
-  @GetMapping
-  @RequestMapping("/api/subscribe")
+  @GetMapping("/api/subscribe")
   public User subscribe(@AuthenticationPrincipal User user, @RequestParam String username) {
     return userService.subscribe(user, username);
   }
 
-  @GetMapping
-  @RequestMapping("/api/subscribers/{user}")
+  @GetMapping("/api/subscribers/{user}")
   public Set<UserDTO> getSubscribersByPattern(
     @PathVariable String user, @RequestParam String inputPattern) {
     return userService.getSubscribersByPattern(user, inputPattern);
   }
 
-  @GetMapping
-  @RequestMapping("/api/subscriptions/{user}")
+  @GetMapping("/api/subscriptions/{user}")
   public Set<UserDTO> getSubscriptionsByPattern(
     @PathVariable String user, @RequestParam String inputPattern) {
     return userService.getSubscriptionsByPattern(user, inputPattern);
   }
 
-  @GetMapping
-  @RequestMapping("/api/subscriptions-count/{user}")
+  @GetMapping("/api/subscriptions-count/{user}")
   public Integer getSubscriptionsCount(@PathVariable String user) {
     return userService.getSubscriptionsCount(user);
   }
 
-  @GetMapping
-  @RequestMapping("/api/subscribers-count/{user}")
+  @GetMapping("/api/subscribers-count/{user}")
   public Integer getSubscribersCount(@PathVariable String user) {
     return userService.getSubscribersCount(user);
   }

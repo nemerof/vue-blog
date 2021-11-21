@@ -102,6 +102,7 @@ public class User implements UserDetails, Serializable {
     }
 
     @Override
+    @JsonDeserialize(using = CustomAuthorityDeserializer.class)
     public Collection<? extends GrantedAuthority> getAuthorities() {
       return getRoles();
     }

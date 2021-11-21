@@ -6,8 +6,6 @@ import static com.training.vueblog.data.MessageTestData.MESSAGE2;
 import static com.training.vueblog.data.TagTestData.TAG1;
 import static com.training.vueblog.data.TagTestData.TAG2;
 import static com.training.vueblog.data.UserTestData.USER;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,7 +39,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @ExtendWith(MockitoExtension.class)
-//@EnableSpringDataWebSupport
 public class MessageControllerTest {
 
   @Mock
@@ -67,8 +64,7 @@ public class MessageControllerTest {
     when(messageService.getAllMessages("", false,
       PageRequest.of(0, 5, Sort.by("creationDate").descending()))).thenReturn(messageDTOS);
 
-    String responseJson =
-      objectToJsonString(Arrays.asList(new MessageDTO(MESSAGE1), new MessageDTO(MESSAGE2)));
+    String responseJson = objectToJsonString(messageDTOS);
 
     mockMvc.perform(get("/api/message?filter=&bytag=false&page=0"))
       .andExpect(status().isOk())
@@ -83,8 +79,7 @@ public class MessageControllerTest {
     when(messageService.getAllMessages("Body 1", false,
       PageRequest.of(0, 5, Sort.by("creationDate").descending()))).thenReturn(messageDTOS);
 
-    String responseJson =
-      objectToJsonString(List.of(new MessageDTO(MESSAGE1)));
+    String responseJson = objectToJsonString(messageDTOS);
 
     mockMvc.perform(get("/api/message?filter=Body 1&bytag=false&page=0"))
       .andExpect(status().isOk())
@@ -99,8 +94,7 @@ public class MessageControllerTest {
     when(messageService.getAllMessages("tag1", true,
       PageRequest.of(0, 5, Sort.by("creationDate").descending()))).thenReturn(messageDTOS);
 
-    String responseJson =
-      objectToJsonString(List.of(new MessageDTO(MESSAGE1)));
+    String responseJson = objectToJsonString(messageDTOS);
 
     mockMvc.perform(get("/api/message?filter=tag1&bytag=true&page=0"))
       .andExpect(status().isOk())
@@ -115,7 +109,7 @@ public class MessageControllerTest {
     when(messageService.getUserMessages("user",
       PageRequest.of(0, 5, Sort.by("creationDate").descending()))).thenReturn(messageDTOS);
 
-    String responseJson = objectToJsonString(List.of(new MessageDTO(MESSAGE1)));
+    String responseJson = objectToJsonString(messageDTOS);
 
     mockMvc.perform(get("/api/message/user/user"))
       .andExpect(status().isOk())
@@ -143,18 +137,18 @@ public class MessageControllerTest {
     MockMultipartFile multipartFile =
       new MockMultipartFile("file", "file.txt", MediaType.TEXT_PLAIN_VALUE, "plug".getBytes());
 
-    when(messageService.addMessage(eq(USER), any(), eq(Arrays.asList(TAG1, TAG2)), eq(multipartFile))).
+    when(messageService.addMessage(USER, MESSAGE1, Arrays.asList(TAG1, TAG2), multipartFile)).
       thenReturn(MESSAGE1);
 
     mockMvc.perform(multipart("/api/message/add").
         file(new MockMultipartFile("text", "",
-        "application/json", objectToJsonString(new MessageDTO(MESSAGE1)).getBytes())).
+        "application/json", objectToJsonString(MESSAGE1).getBytes())).
         file(new MockMultipartFile("tags", "",
           "application/json", objectToJsonString(Arrays.asList(TAG1, TAG2)).getBytes())).
         file(multipartFile)).
         andExpect(status().isOk());
     verify(messageService, times(1)).
-      addMessage(eq(USER), any(), eq(Arrays.asList(TAG1, TAG2)), eq(multipartFile));
+      addMessage(USER, MESSAGE1, Arrays.asList(TAG1, TAG2), multipartFile);
   }
 
   @Test

@@ -66,15 +66,15 @@ public class UserServiceTest {
 
   @AfterAll
   static void deleteSubs() {
-    ADMIN.setSubscriptions(null);
-    ADMIN.setSubscribers(null);
-    USER.setSubscriptions(null);
-    USER.setSubscribers(null);
+    ADMIN.setSubscriptions(Set.of());
+    ADMIN.setSubscribers(Set.of());
+    USER.setSubscriptions(Set.of());
+    USER.setSubscribers(Set.of());
 
-    USER.setSubTags(null);
-    ADMIN.setSubTags(null);
-    TAG1.setSubscribers(null);
-    TAG2.setSubscribers(null);
+    USER.setSubTags(Set.of());
+    ADMIN.setSubTags(Set.of());
+    TAG1.setSubscribers(Set.of());
+    TAG2.setSubscribers(Set.of());
   }
 
 
@@ -169,7 +169,7 @@ public class UserServiceTest {
   @Test
   void deleteUserTest() {
     when(userRepository.findById(USER.getId())).thenReturn(Optional.of(USER));
-    userService.deleteUser(USER.getId());
+    userService.deleteUser(USER.getId(), ADMIN);
     verify(userRepository, times(1)).findById(USER.getId());
     verify(userRepository, times(1)).delete(USER);
   }

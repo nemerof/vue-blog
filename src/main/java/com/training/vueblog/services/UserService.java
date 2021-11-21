@@ -169,19 +169,22 @@ public class UserService implements UserDetailsService {
         .collect(Collectors.toSet());
     }
 
-    public void deleteUser(String id) {
-      User user  = userRepository.findById(id).orElse(null);
+    public void deleteUser(String id, User user) {
+      if(user.getRoles().contains(Role.ADMIN)) {
+      User userToDelete  = userRepository.findById(id).orElse(null);
 
-      if (user != null) {
-        String photoLink = user.getPhotoLink();
+        if (userToDelete != null) {
+          String photoLink = userToDelete.getPhotoLink();
 
-        if (photoLink != null) {
-          System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
-          BlobId blobId = BlobId.of("vueblog-files-bucket", photoLink.substring(photoLink.lastIndexOf("/") + 1));
-          storage.delete(blobId);
+          if (photoLink != null) {
+            System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
+            BlobId blobId = BlobId.of("vueblog-files-bucket",
+              photoLink.substring(photoLink.lastIndexOf("/") + 1));
+            storage.delete(blobId);
+          }
+          userRepository.delete(userToDelete);
+
         }
-        userRepository.delete(user);
-
       }
     }
 
