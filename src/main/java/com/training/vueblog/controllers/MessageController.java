@@ -56,11 +56,15 @@ public class MessageController {
         storage.create(blobInfo, data);
     }
 
+    //todo change test
     @GetMapping
-    public List<MessageDTO> getAllMessages(
+    public List<MessageDTO> getAllMessages(@AuthenticationPrincipal User user,
       @RequestParam(required = false) String filter,
       @RequestParam(name = "bytag", required = false) Boolean findByTag,
       @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
+      if(user != null && !findByTag && filter.isEmpty()) {
+        return messageService.getAllMessagesForAuthUser(user, pageable);
+      }
       return messageService.getAllMessages(filter, findByTag, pageable);
     }
 

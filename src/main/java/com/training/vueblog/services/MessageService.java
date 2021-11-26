@@ -9,10 +9,14 @@ import com.training.vueblog.objects.User;
 import com.training.vueblog.objects.dto.MessageDTO;
 import com.training.vueblog.repositories.MessageRepository;
 import com.training.vueblog.repositories.TagRepository;
+import com.training.vueblog.repositories.UserRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
@@ -24,13 +28,17 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class MessageService {
 
+  private final UserRepository userRepository;
+
   private final MessageRepository messageRepository;
 
   private final Storage storage;
 
   private final TagRepository tagRepository;
 
-  public MessageService(MessageRepository messageRepository, Storage storage, TagRepository tagRepository) {
+  public MessageService(UserRepository userRepository,
+    MessageRepository messageRepository, Storage storage, TagRepository tagRepository) {
+    this.userRepository = userRepository;
     this.messageRepository = messageRepository;
     this.storage = storage;
     this.tagRepository = tagRepository;
@@ -56,18 +64,6 @@ public class MessageService {
     return getMessageDTOList(messages);
   }
 
-  public List<MessageDTO> getAllMessagesForAuthUser(User user, String filter, Pageable pageable) {
-    List<Message> messages;
-
-    if (filter != null && !filter.isEmpty()) {
-      messages = messageRepository.findAllByBodyContains(filter, pageable).getContent();
-    } else {
-      messages = messageRepository.findAll(pageable).getContent();
-    }
-
-    return getMessageDTOList(messages);
-  }
-
   public List<MessageDTO> getMessageDTOList(List<Message> messages) {
     List<MessageDTO> messageDTOList = new ArrayList<>();
 
@@ -82,6 +78,27 @@ public class MessageService {
     if(message != null) {
       return new MessageDTO(message);
     } return null;
+  }
+
+  //todo add test
+  public List<MessageDTO> getAllMessagesForAuthUser(User user, Pageable pageable) {
+    user = userRepository.findByUsername(user.getUsername());
+
+    Set<MessageDTO> messages = new HashSet<>(getUserMessages(user.getUsername(), pageable));
+
+    for (User u : user.getSubscriptions()) {
+      messages.addAll(getMessageDTOList(messageRepository.findAllByUserUsername(u.getUsername(), pageable).getContent()));
+    }
+    for (Tag t : user.getSubTags()) {
+      messages.addAll(getAllMessages(t.getContent(), true, pageable));
+    }
+
+    List<MessageDTO> messagesList = new ArrayList<>(messages);
+    Comparator<MessageDTO> comparator = Comparator.comparing(MessageDTO::getCreationDate).reversed();
+
+    messagesList.sort(comparator);
+
+    return messagesList;
   }
 
   public Message addMessage(User user, Message message, List<Tag> messageTags, MultipartFile file) throws IOException {
