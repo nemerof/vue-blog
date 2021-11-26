@@ -79,6 +79,8 @@ public class UserService implements UserDetailsService {
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
         storage.create(blobInfo, file.getBytes());
         user.setPhotoLink("https://storage.googleapis.com/vueblog-files-bucket/" + photoId);
+      } else {
+        user.setPhotoLink("https://storage.googleapis.com/vueblog-files-bucket/profile-logo.png");
       }
 
       userRepository.save(user);
@@ -207,5 +209,10 @@ public class UserService implements UserDetailsService {
     public Integer getSubscribersCount(String user) {
       List<User> u  = userRepository.findAll();
       return userRepository.findByUsername(user).getSubscribers().size();
+    }
+
+    //todo add test
+    public UserDTO getUserPhotoLink(String user) {
+        return new UserDTO(userRepository.findByUsername(user));
     }
 }

@@ -56,6 +56,18 @@ public class MessageService {
     return getMessageDTOList(messages);
   }
 
+  public List<MessageDTO> getAllMessagesForAuthUser(User user, String filter, Pageable pageable) {
+    List<Message> messages;
+
+    if (filter != null && !filter.isEmpty()) {
+      messages = messageRepository.findAllByBodyContains(filter, pageable).getContent();
+    } else {
+      messages = messageRepository.findAll(pageable).getContent();
+    }
+
+    return getMessageDTOList(messages);
+  }
+
   public List<MessageDTO> getMessageDTOList(List<Message> messages) {
     List<MessageDTO> messageDTOList = new ArrayList<>();
 
@@ -78,13 +90,16 @@ public class MessageService {
     message.setCreationDate(LocalDateTime.now());
     message.setUser(user);
 
-    for (Tag tag : messageTags) {
+    for (int i = 0; i < messageTags.size(); i++) {
+      Tag tag = messageTags.get(i);
       if (tagRepository.getByContent(tag.getContent()) == null) {
+        tag.setId(UUID.randomUUID().toString());
         tag.setNumberOfMessages(1);
       } else {
         tag = tagRepository.getByContent(tag.getContent());
         tag.setNumberOfMessages(tag.getNumberOfMessages() + 1);
       }
+      messageTags.set(i, tag);
       tagRepository.save(tag);
     }
     message.setTags(new ArrayList<>());

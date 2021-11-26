@@ -24,19 +24,9 @@ public class MessageDTO {
   private final LocalDateTime creationDate;
   private final String photoLink;
   private final String username;
+  private final String userPhotoLink;
   private final List<String> tags;
   private final Set<String> userLikes;
-
-  public MessageDTO(String id, String body, LocalDateTime creationDate, String photoLink,
-    String username, List<String> tagsContent, Set<String> userLikes) {
-    this.id = id;
-    this.body = body;
-    this.creationDate = creationDate;
-    this.photoLink = photoLink;
-    this.username = username;
-    this.tags = tagsContent;
-    this.userLikes = userLikes;
-  }
 
   public MessageDTO(Message message) {
     id = message.getId();
@@ -44,6 +34,7 @@ public class MessageDTO {
     creationDate = message.getCreationDate();
     photoLink = message.getPhotoLink();
     username = message.getUser().getUsername();
+    userPhotoLink = message.getUser().getPhotoLink();
 
     if(message.getTags() != null) {
       List<String> tc = new ArrayList<>();

@@ -64,4 +64,10 @@ public class UserController {
     return userService.getSubscribersCount(user);
   }
 
+  //todo add test
+  @GetMapping("/api/user-photo-link/{user}")
+  public UserDTO getUserPhotoLink(@PathVariable String user) {
+    return userService.getUserPhotoLink(user);
+  }
+
 }
