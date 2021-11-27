@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,19 +44,27 @@ public class MessageService {
     this.tagRepository = tagRepository;
   }
 
+  //todo: change test
   public List<MessageDTO> getAllMessages(String filter, Boolean findByTag, Pageable pageable) {
-    List<Message> messages;
+    List<Message> messages = new ArrayList<>();
 
     if (filter != null && !filter.isEmpty()) {
+      int pageElement = pageable.getPageNumber() * 5;
+      int numberOfNewPosts = pageElement + 5;
       if (findByTag) {
-        messages = messageRepository.findAll(pageable)
-          .stream().filter(p -> p.getTags()
-            .stream().anyMatch(t ->
-              t.getContent().contains(filter))).collect(
-            Collectors.toList());
+        Tag tag = tagRepository.getByContent(filter);
+        if(tag != null)
+        messages = messageRepository.findAllByTagsContains(tag);
+
       } else {
-        messages = messageRepository.findAllByBodyContains(filter, pageable).getContent();
+        messages = messageRepository.findAllByBodyContains(filter);
       }
+      if(pageElement > messages.size()) return new ArrayList<>();
+      if(messages.subList(pageElement, messages.size()).size() < 5) {
+        numberOfNewPosts = pageElement + messages.size() - pageElement;
+      }
+      messages.sort(Comparator.comparing(Message::getCreationDate).reversed());
+      messages = messages.subList(pageElement, numberOfNewPosts);
     } else {
       messages = messageRepository.findAll(pageable).getContent();
     }
@@ -80,23 +88,30 @@ public class MessageService {
     } return null;
   }
 
-  //todo add test
+  //todo: add test
   public List<MessageDTO> getAllMessagesForAuthUser(User user, Pageable pageable) {
     user = userRepository.findByUsername(user.getUsername());
 
-    Set<MessageDTO> messages = new HashSet<>(getUserMessages(user.getUsername(), pageable));
+    Set<MessageDTO> messages = new HashSet<>(getUserMessages(user.getUsername()));
 
     for (User u : user.getSubscriptions()) {
-      messages.addAll(getMessageDTOList(messageRepository.findAllByUserUsername(u.getUsername(), pageable).getContent()));
+      messages.addAll(getMessageDTOList(messageRepository.findAllByUserUsername(u.getUsername())));
     }
     for (Tag t : user.getSubTags()) {
-      messages.addAll(getAllMessages(t.getContent(), true, pageable));
+      messages.addAll(getAllMessages(t.getContent(), true, PageRequest.of(0, 5)));
     }
 
     List<MessageDTO> messagesList = new ArrayList<>(messages);
-    Comparator<MessageDTO> comparator = Comparator.comparing(MessageDTO::getCreationDate).reversed();
+    messagesList.sort(Comparator.comparing(MessageDTO::getCreationDate).reversed());
 
-    messagesList.sort(comparator);
+
+    int pageElement = pageable.getPageNumber() * 5;
+    if(pageElement > messagesList.size()) return new ArrayList<>();
+    int numberOfNewPosts = pageElement + 5;
+    if(messagesList.subList(pageElement, messages.size()).size() < 5) {
+      numberOfNewPosts = pageElement + messages.size() - pageElement;
+    }
+    messagesList = messagesList.subList(pageElement, numberOfNewPosts);
 
     return messagesList;
   }
@@ -149,15 +164,6 @@ public class MessageService {
         storage.delete(blobId);
       }
       messageRepository.delete(message);
-
-//      if (tags.size() > 0) {
-//        for (String value : tags) {
-//          Tag tag = tagRepository.getById(value);
-//
-//            tag.setNumberOfMessages(tag.getNumberOfMessages() - 1);
-//            tagRepository.save(tag);
-//        }
-//      }
     }
   }
 
@@ -181,6 +187,11 @@ public class MessageService {
 
   public List<MessageDTO> getUserMessages(String username, Pageable pageable) {
     List<Message> messages = messageRepository.findAllByUserUsername(username, pageable).getContent();
+    return getMessageDTOList(messages);
+  }
+
+  public List<MessageDTO> getUserMessages(String username) {
+    List<Message> messages = messageRepository.findAllByUserUsername(username);
     return getMessageDTOList(messages);
   }
 }
