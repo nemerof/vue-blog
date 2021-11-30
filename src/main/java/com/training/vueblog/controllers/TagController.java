@@ -1,12 +1,10 @@
 package com.training.vueblog.controllers;
 
-import com.training.vueblog.objects.Message;
-import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
+import com.training.vueblog.objects.dto.MessageDTO;
+import com.training.vueblog.objects.dto.TagDTO;
 import com.training.vueblog.services.TagService;
 import java.util.List;
-
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -34,17 +32,22 @@ public class TagController {
   }
 
   @GetMapping("/popular")
-  public List<Tag> getPopularTags() {
+  public List<TagDTO> getPopularTags() {
     return tagService.getPopularTags();
   }
 
+  @GetMapping("/popular/{inputPattern}")
+  public List<TagDTO> getPopularTagsByPattern(@PathVariable String inputPattern) {
+    return tagService.getPopularTagsByPattern(inputPattern);
+  }
+
   @GetMapping("/{tag}")
-  public Tag getTag(@PathVariable String tag) {
+  public TagDTO getTag(@PathVariable String tag) {
     return tagService.getTag(tag);
   }
 
   @GetMapping("/messages/{tag}")
-  public List<Message> getTagMessages(@PathVariable String tag,
+  public List<MessageDTO> getTagMessages(@PathVariable String tag,
     @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
     return tagService.getTagMessages(tag, pageable);
   }

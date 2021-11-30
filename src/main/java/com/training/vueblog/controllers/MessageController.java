@@ -4,30 +4,31 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Message;
+import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
-import com.training.vueblog.repositories.MessageRepository;
+import com.training.vueblog.objects.dto.MessageDTO;
 import com.training.vueblog.services.MessageService;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -55,21 +56,27 @@ public class MessageController {
         storage.create(blobInfo, data);
     }
 
+    //todo change test
     @GetMapping
-    public List<Message> getAllMessages(@RequestParam(required = false) String filter,
-                                        @RequestParam(name = "bytag", required = false) Boolean findByTag,
-                                        @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
-        return messageService.getAllMessages(filter, findByTag, pageable);
+    public List<MessageDTO> getAllMessages(@AuthenticationPrincipal User user,
+      @RequestParam(required = false) String filter,
+      @RequestParam(name = "bytag", required = false) Boolean findByTag,
+      @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
+      if(user != null && !findByTag && filter.isEmpty()) {
+        return messageService.getAllMessagesForAuthUser(user, pageable);
+      }
+      return messageService.getAllMessages(filter, findByTag, pageable);
     }
 
     @GetMapping("/user/{username}")
-    public List<Message> getUserMessages(@PathVariable String username,
-                                         @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
+    public List<MessageDTO> getUserMessages(@PathVariable String username,
+      @PageableDefault(sort = {"creationDate"}, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
+
       return messageService.getUserMessages(username, pageable);
     }
 
     @GetMapping("/{id}")
-    public Message getMessage(@PathVariable String id) {
+    public MessageDTO getMessage(@PathVariable String id) {
         return messageService.getMessage(id);
     }
 
@@ -77,9 +84,10 @@ public class MessageController {
     @PostMapping("/add")
     public Message addMessage(@AuthenticationPrincipal User user,
                               @RequestPart("text") Message message,
+                              @RequestPart("tags") List<Tag> messageTags,
                               @RequestParam("file") MultipartFile file) throws IOException {
 
-      return messageService.addMessage(user, message, file);
+      return messageService.addMessage(user, message, messageTags, file);
     }
 
     @DeleteMapping("/{id}")

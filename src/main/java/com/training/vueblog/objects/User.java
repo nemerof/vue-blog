@@ -2,6 +2,10 @@ package com.training.vueblog.objects;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -9,6 +13,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,6 +25,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +34,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "usr")
 @Getter
 @Setter
+@NoArgsConstructor
 @JsonIdentityInfo(
   generator = ObjectIdGenerators.PropertyGenerator.class,
   property = "id")
@@ -40,58 +47,65 @@ public class User implements UserDetails, Serializable {
     private String username;
 
     private String password;
-
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime creationDate;
-
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime lastVisit;
 
     private boolean active;
 
     private String photoLink;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "tag_subscribers",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<Tag> subTags;
-
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
+    @Column(name="role")
     private Set<Role> roles;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+      name = "tag_subscribers",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> subTags;
+
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
       name = "user_subscriptions",
-      joinColumns = {@JoinColumn(name = "channel_id")},
+      joinColumns = {@JoinColumn(name = "subscription_id")},
       inverseJoinColumns = {@JoinColumn(name = "subscriber_id")}
     )
     private Set<User> subscribers = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
       name = "user_subscriptions",
       joinColumns = {@JoinColumn(name = "subscriber_id")},
-      inverseJoinColumns = {@JoinColumn(name = "channel_id")}
+      inverseJoinColumns = {@JoinColumn(name = "subscription_id")}
     )
     private Set<User> subscriptions = new HashSet<>();
-//
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JoinTable(
-//      name = "reposts",
-//      joinColumns = {@JoinColumn(name = "user_id")},
-//      inverseJoinColumns = {@JoinColumn(name = "message_id")}
-//    )
-//    private Set<Message> reposts = new HashSet<>();
+
+      //todo add validation for constructor
+    public User(String id, String username, String password, LocalDateTime creationDate,
+      LocalDateTime lastVisit, boolean active, Set<Role> roles) {
+      this.id = id;
+      this.username = username;
+      this.password = password;
+      this.creationDate = creationDate;
+      this.lastVisit = lastVisit;
+      this.active = active;
+      this.roles = roles;
+    }
 
     @Override
+    @JsonDeserialize(using = CustomAuthorityDeserializer.class)
     public Collection<? extends GrantedAuthority> getAuthorities() {
       return getRoles();
     }
-
-
 
     @Override
     public boolean isAccountNonExpired() {
@@ -129,8 +143,6 @@ public class User implements UserDetails, Serializable {
     return  isActive() == user.isActive() && getId().equals(user.getId()) &&
       Objects.equals(getUsername(), user.getUsername()) &&
       Objects.equals(getRoles(), user.getRoles())
-//                Objects.equals(getSubscribers(), user.getSubscribers()) &&
-//                Objects.equals(getSubscriptions(), user.getSubscriptions())
       ;
   }
 

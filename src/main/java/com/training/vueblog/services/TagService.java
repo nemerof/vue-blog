@@ -1,14 +1,14 @@
 package com.training.vueblog.services;
 
 
-import com.training.vueblog.objects.Message;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
+import com.training.vueblog.objects.dto.MessageDTO;
+import com.training.vueblog.objects.dto.TagDTO;
 import com.training.vueblog.repositories.TagRepository;
 import com.training.vueblog.repositories.UserRepository;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +20,7 @@ public class TagService {
   private final UserRepository userRepository;
 
   private final MessageService messageService;
+
   private final UserService userService;
 
   public TagService(TagRepository tagRepository,
@@ -42,16 +43,33 @@ public class TagService {
     return dbUser;
   }
 
-  public List<Tag> getPopularTags() {
-    return tagRepository.findAll().stream().sorted(Tag::compareTo)
-      .collect(Collectors.toList());
+  public List<TagDTO> getPopularTags() {
+    List<Tag> popularTags = tagRepository.findAll();
+    popularTags.sort(Tag::compareTo);
+
+    return getTagDTOList(popularTags);
   }
 
-  public List<Message> getTagMessages(String tag, Pageable pageable) {
+  public List<TagDTO> getTagDTOList(List<Tag> tags) {
+    List<TagDTO> tagDTOList = new ArrayList<>();
+
+    for (Tag t : tags) {
+      tagDTOList.add(new TagDTO(t));
+    }
+    return tagDTOList;
+  }
+
+  public List<TagDTO> getPopularTagsByPattern(String inputPattern) {
+    List<Tag> popularTags = tagRepository.findAllByContentContains(inputPattern);
+    if(popularTags.size() > 1) popularTags.sort(Tag::compareTo);
+    return getTagDTOList(popularTags);
+  }
+
+  public List<MessageDTO> getTagMessages(String tag, Pageable pageable) {
     return messageService.getAllMessages(tag, true, pageable);
   }
 
-  public Tag getTag(String tag) {
-    return tagRepository.getByContent(tag);
+  public TagDTO getTag(String tag) {
+    return new TagDTO(tagRepository.getByContent(tag));
   }
 }

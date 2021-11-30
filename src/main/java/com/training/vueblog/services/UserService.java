@@ -6,10 +6,12 @@ import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Role;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
+import com.training.vueblog.objects.dto.UserDTO;
 import com.training.vueblog.repositories.TagRepository;
 import com.training.vueblog.repositories.UserRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -77,6 +79,8 @@ public class UserService implements UserDetailsService {
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
         storage.create(blobInfo, file.getBytes());
         user.setPhotoLink("https://storage.googleapis.com/vueblog-files-bucket/" + photoId);
+      } else {
+        user.setPhotoLink("https://storage.googleapis.com/vueblog-files-bucket/profile-logo.png");
       }
 
       userRepository.save(user);
@@ -84,127 +88,131 @@ public class UserService implements UserDetailsService {
       return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    public User getUser(User user) {
-        if (user != null) {
-            System.out.println(user.getPassword());
-            Set<Tag> tags = new HashSet<>();
-            jdbcTemplate.query("SELECT * FROM tag_subscribers", resultSet -> {
-                String userId = resultSet.getString("user_id");
-                String tagId = resultSet.getString("tag_id");
-                if (userId.equals(user.getId()))
-                    tags.add(tagRepository.getById(tagId));
-            });
-            Set<User> subscriptions = new HashSet<>();
-            jdbcTemplate.query("SELECT * FROM user_subscriptions", resultSet -> {
-              String subscriberId = resultSet.getString("subscriber_id");
-              String channelId = resultSet.getString("channel_id");
-              if (subscriberId.equals(user.getId()))
-                subscriptions.add(userRepository.findById(channelId).get());
-            });
-            user.setSubTags(tags);
-            user.setSubscriptions(subscriptions);
-        } else
-            System.out.println("No principal");
-        return user;
-    }
-
-  public List<User> getUsers() {
-    return userRepository.findAll();
-  }
-
-  public Set<User> getSubscriptions(String user) {
-    return userRepository.findByUsername(user).getSubscriptions();
-  }
-
-  public Set<User> getSubscribers(String user) {
-      return userRepository.findByUsername(user).getSubscribers();
-  }
-
-  public List<User> getUsersByPattern(String inputPattern) {
-    return userRepository.findAllByUsernameContains(inputPattern);
-  }
-
-  public Set<User> getSubscriptionsByPattern(String user, String inputPattern) {
-    if(inputPattern.equals("")) {
-      User u = userRepository.findByUsername(user); ////////////////////////////////////////////////
-      Set<User> users = userRepository.findByUsername(user).getSubscriptions();
-      return users;
-    }
-    return userRepository.findByUsername(user).getSubscriptions().stream()
-      .filter(p -> p.getUsername().contains(inputPattern))
-      .collect(Collectors.toSet());
-  }
-
-  public Set<User> getSubscribersByPattern(String user, String inputPattern) {
-    if(inputPattern.equals("")) {
-      Set<User> users =  userRepository.findByUsername(user).getSubscribers();
-      return users;
-    }
-    Set<User> users = userRepository.findByUsername(user).getSubscribers().stream()
-      .filter(p -> p.getUsername().contains(inputPattern))
-      .collect(Collectors.toSet());
-    return users;
-  }
-
-//  public Set<User> getSubscriptionsOfAnotherUser(String user) {
-//      return userRepository.findByUsername(user).getSubscriptions();
-//  }
-//
-//  public Set<User> getSubscribersOfAnotherUser(String user) {
-//    return userRepository.findByUsername(user).getSubscribers();
-//  }
-
-  public List<User> getUsersExceptCurrentSubscriptions(User user, String inputPattern) {
-    List<User> users = userRepository.findAll();
-    users.remove(user);
-    users.removeAll(user.getSubscriptions());
-
-      users = users.stream()
-        .filter(p -> p.getUsername().contains(inputPattern))
-        .collect(Collectors.toList());
-
-    return users;
-  }
-
-  public List<User> getUsersExceptCurrentSubscribers(User user, String inputPattern) {
-    List<User> users = userRepository.findAll();
-    users.remove(user);
-    users.removeAll(user.getSubscribers());
-
-      users = users.stream()
-        .filter(p -> p.getUsername().contains(inputPattern))
-        .collect(Collectors.toList());
-
-    return users;
-  }
-
-  public void deleteUser(String id) {
-    User user  = userRepository.findById(id).orElse(null);
-
-    if (user != null) {
-      String photoLink = user.getPhotoLink();
-
-      if (photoLink != null) {
-        System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
-        BlobId blobId = BlobId.of("vueblog-files-bucket", photoLink.substring(photoLink.lastIndexOf("/") + 1));
-        storage.delete(blobId);
+    public Set<UserDTO> getUserSubscriptions(User user) {
+      Set<UserDTO> userSubscriptions = new HashSet<>();
+      for (User u : user.getSubscriptions()) {
+        userSubscriptions.add(new UserDTO(u));
       }
-      userRepository.delete(user);
-
+      return userSubscriptions;
     }
-  }
 
-  public User subscribe(User user, String username) {
-    User dbUser = getUser(user);
-    User userSub = userRepository.findByUsername(username);
-    if (dbUser.getSubscriptions().contains(userSub)) {
-      dbUser.getSubscriptions().remove(userSub);
-      userSub.getSubscribers().remove(dbUser);
-      userRepository.save(userSub);
-    } else {
-      dbUser.getSubscriptions().add(userSub);
+    public Set<UserDTO> getUserSubscribers(User user) {
+      Set<UserDTO> userSubscribers = new HashSet<>();
+      for (User u : user.getSubscribers()) {
+        userSubscribers.add(new UserDTO(u));
+      }
+      return userSubscribers;
     }
-    userRepository.save(dbUser);
-    return dbUser;
-  }
+
+    public User getUser(User user) {
+      if (user != null) {
+        Set<Tag> tags = new HashSet<>();
+        jdbcTemplate.query("SELECT * FROM tag_subscribers", resultSet -> {
+          String userId = resultSet.getString("user_id");
+          String tagId = resultSet.getString("tag_id");
+          if (userId.equals(user.getId()))
+            tags.add(tagRepository.findById(tagId).get());
+        });
+        Set<User> subscriptions = new HashSet<>();
+        jdbcTemplate.query("SELECT * FROM user_subscriptions", resultSet -> {
+          String subscriberId = resultSet.getString("subscriber_id");
+          String channelId = resultSet.getString("subscription_id");
+          if (subscriberId.equals(user.getId()))
+            subscriptions.add(userRepository.findById(channelId).get());
+        });
+        user.setSubTags(tags);
+        user.setSubscriptions(subscriptions);
+      } else
+        System.out.println("No principal");
+      return user;
+    }
+
+    public List<UserDTO> getUsers() {
+      return getUserDTOList(userRepository.findAll());
+    }
+
+    public List<UserDTO> getUserDTOList(List<User> users) {
+      List<UserDTO> userDTOList = new ArrayList<>();
+
+      for (User u : users) {
+        userDTOList.add(new UserDTO(u));
+      }
+      return userDTOList;
+    }
+
+    public Set<UserDTO> getUserDTOSet(Set<User> users) {
+      Set<UserDTO> userDTOSet = new HashSet<>();
+
+      for (User u : users) {
+        userDTOSet.add(new UserDTO(u));
+      }
+      return userDTOSet;
+    }
+/////////////////////////
+    public List<UserDTO> getUsersByPattern(String inputPattern) {
+      return getUserDTOList(userRepository.findAllByUsernameContains(inputPattern));
+    }
+
+    public Set<UserDTO> getSubscriptionsByPattern(String user, String inputPattern) {
+      if(inputPattern.equals("")) {
+        return getUserSubscriptions(userRepository.findByUsername(user));
+      }
+      return getUserSubscriptions(userRepository.findByUsername(user)).stream()
+        .filter(p -> p.getUsername().contains(inputPattern))
+        .collect(Collectors.toSet());
+    }
+
+    public Set<UserDTO> getSubscribersByPattern(String user, String inputPattern) {
+      if(inputPattern.equals("")) {
+        return getUserSubscribers(userRepository.findByUsername(user));
+      }
+      return getUserSubscribers(userRepository.findByUsername(user)).stream()
+        .filter(p -> p.getUsername().contains(inputPattern))
+        .collect(Collectors.toSet());
+    }
+
+    public void deleteUser(String id, User user) {
+      if(user.getRoles().contains(Role.ADMIN)) {
+      User userToDelete  = userRepository.findById(id).orElse(null);
+
+        if (userToDelete != null) {
+          String photoLink = userToDelete.getPhotoLink();
+
+          if (photoLink != null) {
+            System.out.println(photoLink.substring(photoLink.lastIndexOf("/") + 1));
+            BlobId blobId = BlobId.of("vueblog-files-bucket",
+              photoLink.substring(photoLink.lastIndexOf("/") + 1));
+            storage.delete(blobId);
+          }
+          userRepository.delete(userToDelete);
+
+        }
+      }
+    }
+
+    public User subscribe(User user, String username) {
+      User dbUser = getUser(user);
+      User userSub = userRepository.findByUsername(username);
+      if (dbUser.getSubscriptions().contains(userSub)) {
+        dbUser.getSubscriptions().remove(userSub);
+      } else {
+        dbUser.getSubscriptions().add(userSub);
+      }
+      userRepository.save(dbUser);
+      return dbUser;
+    }
+
+    public Integer getSubscriptionsCount(String user) {
+        return userRepository.findByUsername(user).getSubscriptions().size();
+    }
+
+    public Integer getSubscribersCount(String user) {
+      List<User> u  = userRepository.findAll();
+      return userRepository.findByUsername(user).getSubscribers().size();
+    }
+
+    //todo add test
+    public UserDTO getUserPhotoLink(String user) {
+        return new UserDTO(userRepository.findByUsername(user));
+    }
 }

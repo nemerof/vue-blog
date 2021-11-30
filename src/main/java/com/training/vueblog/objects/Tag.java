@@ -1,12 +1,17 @@
 package com.training.vueblog.objects;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
-
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,14 +25,27 @@ public class Tag implements Serializable, Comparable<Tag> {
     @Id
     private String id;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 50)
     private String content;
 
     private int numberOfMessages;
 
-    public Tag(String tag) {
-        this.id = UUID.randomUUID().toString();
-        this.content = tag;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+      name = "tag_subscribers",
+      joinColumns = @JoinColumn(name = "tag_id"),
+      inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> subscribers = new HashSet<>();
+
+  public Tag(String tag) {
+    this.id = UUID.randomUUID().toString();
+    this.content = tag;
+  }
+
+    public Tag(String id, String content) {
+      this.id = id;
+      this.content = content;
     }
 
     @Override
@@ -53,10 +71,6 @@ public class Tag implements Serializable, Comparable<Tag> {
 
     @Override
     public int compareTo(Tag t) {
-        if (this.getNumberOfMessages() > t.getNumberOfMessages()) {
-            return 1;
-        } else {
-            return 0;
-        }
+      return Integer.compare(t.getSubscribers().size(), this.getSubscribers().size());
     }
 }

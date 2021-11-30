@@ -1,9 +1,15 @@
 package com.training.vueblog.objects;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -25,7 +31,10 @@ public class Message implements Serializable {
     @Id
     private String id;
 
+    @Column(length=500)
     private String body;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime creationDate;
 
     //todo Remake to collections of photos
@@ -37,22 +46,36 @@ public class Message implements Serializable {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "message_tags",
-            joinColumns = {@JoinColumn(name = "message_id")},
-            inverseJoinColumns = {@JoinColumn(name = "tag_id")}
+      name = "message_tags",
+      joinColumns = {@JoinColumn(name = "message_id")},
+      inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
     private List<Tag> tags;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name="user_id")
     private Set<String> userLikes;
 
-    public Message(String body, LocalDateTime creationDate, List<Tag> tags) {
-        this.body = body;
-        this.creationDate = creationDate;
-        this.tags = tags;
+    public Message(String id, String body, LocalDateTime creationDate, String photoLink,
+      User user, List<Tag> tags) {
+      this.id = id;
+      this.body = body;
+      this.creationDate = creationDate;
+      this.photoLink = photoLink;
+      this.user = user;
+      this.tags = tags;
     }
 
-    @Override
+    public Message(String id, String body, LocalDateTime creationDate, User user, List<Tag> tags) {
+      this.id = id;
+      this.body = body;
+      this.creationDate = creationDate;
+      this.user = user;
+      this.tags = tags;
+    }
+
+
+  @Override
     public String toString() {
         return "Message{" +
                 "id='" + id + '\'' +
@@ -60,4 +83,26 @@ public class Message implements Serializable {
                 ", tags=" + tags +
                 '}';
     }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Message)) {
+      return false;
+    }
+    Message message = (Message) o;
+    return getId().equals(message.getId()) && Objects.equals(getBody(), message.getBody())
+      && Objects.equals(getCreationDate(), message.getCreationDate())
+      && Objects.equals(getPhotoLink(), message.getPhotoLink())
+      && Objects.equals(getUser(), message.getUser()) && Objects.equals(
+      getTags(), message.getTags()) && Objects.equals(getUserLikes(),
+      message.getUserLikes());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getId());
+  }
 }
