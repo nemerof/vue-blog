@@ -69,26 +69,30 @@ public class MessageServiceTest {
 
   @Test
   void getAllMessagesFilterNotByTagTest() {
-    Page<Message> page = new PageImpl<>(List.of(MESSAGE1));
-    when(messageRepository.findAllByBodyContains("Body 1", PageRequest.of(0, 5))).thenReturn(page);
+    List<Message> messages = Arrays.asList(MESSAGE1);
+    when(messageRepository.findAllByBodyContains("Body 1")).thenReturn(messages);
     List<MessageDTO> messagesFromServiceWithFilter =
       messageService.getAllMessages("Body 1", false, PageRequest.of(0, 5));
     List<MessageDTO> messagesWithFilter = List.of(new MessageDTO(MESSAGE1));
     assertEquals(messagesWithFilter, messagesFromServiceWithFilter);
-    verify(messageRepository, times(1)).
-      findAllByBodyContains("Body 1", PageRequest.of(0, 5));
+
+    verify(messageRepository, times(1)).findAllByBodyContains("Body 1");
   }
 
   @Test
   void getAllMessagesFilterByTagTest() {
-    Page<Message> page = new PageImpl<>(Arrays.asList(MESSAGE1, MESSAGE2));
-    when(messageRepository.findAll(PageRequest.of(0, 5))).thenReturn(page);
+    List<Message> messages = Arrays.asList(MESSAGE1);
+
+    when(tagRepository.getByContent("tag1")).thenReturn(TAG1);
+    when(messageRepository.findAllByTagsContains(TAG1)).thenReturn(messages);
+
     List<MessageDTO> messagesFromServiceWithFilterByTag =
       messageService.getAllMessages("tag1", true, PageRequest.of(0, 5));
     List<MessageDTO> messagesWithFilterByTag = List.of(new MessageDTO(MESSAGE1));
     assertEquals(messagesWithFilterByTag, messagesFromServiceWithFilterByTag);
-    verify(messageRepository, times(1)).
-      findAll(PageRequest.of(0, 5));
+
+    verify(tagRepository, times(1)).getByContent("tag1");
+    verify(messageRepository, times(1)).findAllByTagsContains(TAG1);
   }
 
   @Test

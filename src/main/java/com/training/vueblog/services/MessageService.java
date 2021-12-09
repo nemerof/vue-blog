@@ -4,6 +4,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.training.vueblog.objects.Message;
+import com.training.vueblog.objects.Role;
 import com.training.vueblog.objects.Tag;
 import com.training.vueblog.objects.User;
 import com.training.vueblog.objects.dto.MessageDTO;
@@ -56,7 +57,8 @@ public class MessageService {
         if(tag != null)
         messages = messageRepository.findAllByTagsContains(tag);
 
-      } else {
+      }
+      else {
         messages = messageRepository.findAllByBodyContains(filter);
       }
       if(pageElement > messages.size()) return new ArrayList<>();
@@ -154,7 +156,8 @@ public class MessageService {
   public void deleteMessage(User user, String id) {
     Message message = messageRepository.findById(id).orElse(null);
 
-    if (message != null && user.getId().equals(message.getUser().getId())) {
+    if (message != null && (user.getId().equals(message.getUser().getId()) || user.getRoles().contains(
+      Role.ADMIN))) {
       String photoLink = message.getPhotoLink();
 //      List<String> tags = message.getTags();
 

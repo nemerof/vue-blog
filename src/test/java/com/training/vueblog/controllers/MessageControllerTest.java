@@ -61,7 +61,7 @@ public class MessageControllerTest {
   @Test
   public void getAllMessagesNoFilterNotByTagTest() throws Exception {
     List<MessageDTO> messageDTOS = Arrays.asList(new MessageDTO(MESSAGE1), new MessageDTO(MESSAGE2));
-    when(messageService.getAllMessages("", false,
+    when(messageService.getAllMessagesForAuthUser(USER,
       PageRequest.of(0, 5, Sort.by("creationDate").descending()))).thenReturn(messageDTOS);
 
     String responseJson = objectToJsonString(messageDTOS);
@@ -69,7 +69,7 @@ public class MessageControllerTest {
     mockMvc.perform(get("/api/message?filter=&bytag=false&page=0"))
       .andExpect(status().isOk())
       .andExpect(content().json(responseJson));
-    verify(messageService, times(1)).getAllMessages("", false,
+    verify(messageService, times(1)).getAllMessagesForAuthUser(USER,
       PageRequest.of(0, 5, Sort.by("creationDate").descending()));
   }
 
